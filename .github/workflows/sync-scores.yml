@@ -2,7 +2,7 @@ name: 🔄 Sync Scores CDM 2026
 
 on:
   schedule:
-    - cron: '0 * * * *'
+    - cron: '*/5 * * * *'
 
   workflow_dispatch:
 
