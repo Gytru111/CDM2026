@@ -1,8 +1,12 @@
 name: 🔄 Sync Scores CDM 2026
+# trigger resync
 
 on:
+  # ── Toutes les 5 minutes, en continu (minimum supporté par GitHub Actions)
   schedule:
-    - cron: '*/15 * * * *'
+    - cron: '*/5 * * * *'
+
+  # ── Déclenchement manuel depuis GitHub (onglet Actions)
   workflow_dispatch:
 
 jobs:
@@ -24,6 +28,7 @@ jobs:
         env:
           FIREBASE_DB_SECRET: ${{ secrets.FIREBASE_DB_SECRET }}
         run: node sync-scores.js
+        working-directory: .
 
       - name: ✅ Done
         run: echo "Sync terminé à $(date -u)"
