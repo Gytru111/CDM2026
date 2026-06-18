@@ -1,20 +1,25 @@
 /**
  * CDM 2026 — Sync automatique des scores ESPN → Firebase
- * Tourne via GitHub Actions toutes les heures
+ * Tourne via GitHub Actions toutes les heures (et toutes les 5min pendant les matchs)
  */
 
 const https = require('https');
 
+// ─── CONFIG FIREBASE ───────────────────────────────────────────────
 const FB_DB_URL = 'https://cdm-2026-77589-default-rtdb.europe-west1.firebasedatabase.app';
+// La clé Firebase DB secret doit être dans les secrets GitHub : FIREBASE_DB_SECRET
 const FB_SECRET = process.env.FIREBASE_DB_SECRET;
 
 if (!FB_SECRET) {
   console.error('❌ FIREBASE_DB_SECRET manquant dans les variables d\'environnement');
+  console.error('   → Ajouter le secret dans GitHub : Settings > Secrets > Actions');
   process.exit(1);
 }
 
+// ─── MATCHS CDM 2026 (correspondance ID interne ↔ équipes) ─────────
 const MATCHES = [[1,"Mexique","Afrique du Sud"],[2,"Corée du Sud","République tchèque"],[3,"Canada","Bosnie-herzégovine"],[4,"USA","Paraguay"],[5,"Qatar","Suisse"],[6,"Brésil","Maroc"],[7,"Haïti","Écosse"],[8,"Australie","Turquie"],[9,"Allemagne","Curaçao"],[10,"Pays-Bas","Japon"],[11,"Côte d'ivoire","Équateur"],[12,"Suède","Tunisie"],[13,"Espagne","Cap-Vert"],[14,"Belgique","Égypte"],[15,"Arabie Saoudite","Uruguay"],[16,"Iran","Nouvelle-Zélande"],[17,"France","Sénégal"],[18,"Irak","Norvège"],[19,"Argentine","Algérie"],[20,"Autriche","Jordanie"],[21,"Portugal","RD Congo"],[22,"Angleterre","Croatie"],[23,"Ghana","Panama"],[24,"Ouzbékistan","Colombie"],[25,"République tchèque","Afrique du Sud"],[26,"Suisse","Bosnie-herzégovine"],[27,"Canada","Qatar"],[28,"Mexique","Corée du Sud"],[29,"USA","Australie"],[30,"Écosse","Maroc"],[31,"Brésil","Haïti"],[32,"Turquie","Paraguay"],[33,"Pays-Bas","Suède"],[34,"Allemagne","Côte d'ivoire"],[35,"Équateur","Curaçao"],[36,"Tunisie","Japon"],[37,"Espagne","Arabie Saoudite"],[38,"Belgique","Iran"],[39,"Uruguay","Cap-Vert"],[40,"Nouvelle-Zélande","Égypte"],[41,"Argentine","Autriche"],[42,"France","Irak"],[43,"Norvège","Sénégal"],[44,"Jordanie","Algérie"],[45,"Portugal","Ouzbékistan"],[46,"Angleterre","Ghana"],[47,"Panama","Croatie"],[48,"Colombie","RD Congo"],[49,"Suisse","Canada"],[50,"Bosnie-herzégovine","Qatar"],[51,"Écosse","Brésil"],[52,"Maroc","Haïti"],[53,"République tchèque","Mexique"],[54,"Afrique du Sud","Corée du Sud"],[55,"Équateur","Allemagne"],[56,"Curaçao","Côte d'ivoire"],[57,"Japon","Suède"],[58,"Tunisie","Pays-Bas"],[59,"Turquie","USA"],[60,"Paraguay","Australie"],[61,"Norvège","France"],[62,"Sénégal","Irak"],[63,"Cap-Vert","Arabie Saoudite"],[64,"Uruguay","Espagne"],[65,"Égypte","Iran"],[66,"Nouvelle-Zélande","Belgique"],[67,"Panama","Angleterre"],[68,"Croatie","Ghana"],[69,"Colombie","Portugal"],[70,"RD Congo","Ouzbékistan"],[71,"Algérie","Autriche"],[72,"Jordanie","Argentine"]];
 
+// ─── CORRESPONDANCE NOMS ESPN → NOMS FRANÇAIS ──────────────────────
 const NAME_MAP = {
   'Mexico':'Mexique','South Africa':'Afrique du Sud',
   'South Korea':'Corée du Sud','Korea Republic':'Corée du Sud','Korea, South':'Corée du Sud','Republic of Korea':'Corée du Sud',
@@ -47,11 +52,13 @@ function normName(s) {
   for (const [k, v] of Object.entries(NAME_MAP)) {
     if (lower === k.toLowerCase()) return v;
   }
+  // Vérifier si c'est déjà un nom français
   const allTeams = new Set(MATCHES.flatMap(m => [m[1], m[2]]));
   if (allTeams.has(s)) return s;
   return s;
 }
 
+// ─── UTILS HTTP ─────────────────────────────────────────────────────
 function fetchJSON(url) {
   return new Promise((resolve, reject) => {
     const req = https.get(url, {
@@ -106,8 +113,11 @@ function firebaseGet(path) {
   });
 }
 
+// ─── FETCH ESPN SCOREBOARD ──────────────────────────────────────────
 async function fetchESPN() {
-  const url = 'https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard?dates=2026&limit=200';
+  // IMPORTANT: ESPN exige le format YYYYMMDD-YYYYMMDD pour une plage de dates.
+  // 'dates=2026' seul n'est pas valide et ne renvoie pas les bons matchs/détails.
+  const url = 'https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard?dates=20260611-20260719&limit=300';
   console.log('📡 Fetching ESPN scoreboard...');
   const data = await fetchJSON(url);
   const events = data.events || [];
@@ -116,6 +126,7 @@ async function fetchESPN() {
   const LIVE = ['STATUS_IN_PROGRESS', 'STATUS_HALFTIME'];
 
   const updates = {};
+  const eventMap = {}; // matchId → ESPN eventId (pour les détails buts)
   let liveCount = 0;
 
   for (const e of events) {
@@ -141,12 +152,15 @@ async function fetchESPN() {
       const s0 = swapped ? ga : gh;
       const s1 = swapped ? gh : ga;
       updates[found[0]] = [s0, s1];
+      eventMap[found[0]] = { eventId: e.id, status, isLive: LIVE.includes(status) };
       if (LIVE.includes(status)) liveCount++;
 
+      // Extraire événements buts depuis comp.details
       const rawDetails = comp.details || [];
       if (rawDetails.length > 0) {
         const homeTeamId = home?.team?.id;
-        if (homeTeamId) {
+        const awayTeamId = away?.team?.id;
+        if (homeTeamId && awayTeamId) {
           const aeParsed = [];
           for (const d of rawDetails) {
             const min = parseInt(d.clock?.displayValue) || 0;
@@ -175,9 +189,10 @@ async function fetchESPN() {
   }
 
   console.log(`  ✅ ESPN: ${Object.keys(updates).filter(k => !k.startsWith('__ae')).length} matchs terminés/en cours, ${liveCount} en direct`);
-  return updates;
+  return { updates, eventMap };
 }
 
+// ─── FETCH BACKUP worldcup26.ir ────────────────────────────────────
 async function fetchWC26() {
   try {
     console.log('📡 Fetching backup worldcup26.ir...');
@@ -201,10 +216,12 @@ async function fetchWC26() {
   }
 }
 
+// ─── MAIN ───────────────────────────────────────────────────────────
 async function main() {
   console.log(`\n🚀 CDM 2026 Sync — ${new Date().toISOString()}`);
   console.log('═'.repeat(50));
 
+  // 1. Lire les scores actuels dans Firebase
   let currentRS = {};
   try {
     const fb = await firebaseGet('rs');
@@ -216,11 +233,12 @@ async function main() {
     console.warn('⚠️  Lecture Firebase échouée:', e.message);
   }
 
+  // 2. Fetch ESPN
   let newScores = { ...currentRS };
   let aeUpdates = {};
 
   try {
-    const updates = await fetchESPN();
+    const { updates, eventMap } = await fetchESPN();
     let changed = 0;
     for (const [k, v] of Object.entries(updates)) {
       if (k.startsWith('__ae_')) {
@@ -238,6 +256,7 @@ async function main() {
     if (changed === 0) console.log('  ✓ Aucun changement de score');
   } catch (e) {
     console.warn('⚠️  ESPN échoué:', e.message);
+    // Fallback backup
     try {
       const backup = await fetchWC26();
       for (const [k, v] of Object.entries(backup)) newScores[+k] = v;
@@ -246,6 +265,7 @@ async function main() {
     }
   }
 
+  // 3. Écrire dans Firebase
   try {
     await firebasePut('rs', newScores);
     console.log(`✅ Firebase RS mis à jour (${Object.keys(newScores).length} scores)`);
@@ -254,8 +274,10 @@ async function main() {
     process.exit(1);
   }
 
+  // 4. Écrire les événements buts dans Firebase
   if (Object.keys(aeUpdates).length > 0) {
     try {
+      // Lire AE existant pour merger
       let currentAE = {};
       try {
         const fbAE = await firebaseGet('ae');
