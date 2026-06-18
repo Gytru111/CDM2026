@@ -847,7 +847,571 @@ table.tbl tbody tr.played td{background:rgba(0,204,122,.02)}
   /* Bracket scroll horizontal fluide */
   .bracket-wrap{-webkit-overflow-scrolling:touch}
 }
+/* ══════════════════════════════════════════════════
+   PATCH DESIGN CDM 2026 — Coller ce bloc JUSTE AVANT
+   la balise </style> dans index.html (ligne ~850)
+   ══════════════════════════════════════════════════ */
 
+/* ── IMPORT POLICE BEBAS NEUE (titre) + INTER déjà présent ── */
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap');
+
+/* ── TOKENS ENRICHIS ── */
+:root {
+  --gold-glow: rgba(240,168,40,.18);
+  --G-gold: linear-gradient(135deg,#f0a828 0%,#ffcd60 50%,#e8821a 100%);
+  --G-premium: linear-gradient(135deg,#1a1040 0%,#070c16 100%);
+  --border-gold: 1px solid rgba(240,168,40,.28);
+  --shadow-gold: 0 0 40px rgba(240,168,40,.12), 0 8px 32px rgba(0,0,0,.55);
+  --shadow-card: 0 2px 16px rgba(0,0,0,.45), 0 0 0 1px rgba(255,255,255,.05);
+}
+
+/* ══════════ LOGIN CARD ══════════ */
+/* Fond global de la page login : particules lumineuses */
+#ml {
+  background: radial-gradient(ellipse 80% 80% at 50% 0%, rgba(59,130,246,.13) 0%, transparent 60%),
+              radial-gradient(ellipse 60% 60% at 80% 100%, rgba(240,168,40,.10) 0%, transparent 55%),
+              rgba(3,6,12,.9);
+}
+
+.lcard {
+  background: linear-gradient(160deg, #0d1628 0%, #070c16 100%);
+  border: 1px solid rgba(240,168,40,.22);
+  box-shadow: 0 0 80px rgba(240,168,40,.08), 0 32px 64px rgba(0,0,0,.7), 0 0 0 1px rgba(255,255,255,.04);
+  padding: 3rem 2.5rem 2.5rem;
+  border-radius: 28px;
+}
+
+.lcard-icon {
+  font-size: 4.5rem;
+  filter: drop-shadow(0 0 20px rgba(240,168,40,.4));
+}
+
+.lcard-eyebrow {
+  font-family: 'Inter', sans-serif;
+  font-size: .65rem;
+  letter-spacing: .28em;
+  color: var(--gold);
+  opacity: .85;
+}
+
+.lcard-title {
+  font-family: 'Bebas Neue', 'Inter', sans-serif;
+  font-size: 5.5rem;
+  font-weight: 400;
+  letter-spacing: .04em;
+  line-height: .9;
+  background: var(--G-gold);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 2px 12px rgba(240,168,40,.3));
+}
+
+.lcard-sub {
+  font-size: .82rem;
+  color: rgba(143,165,197,.7);
+  margin: .5rem 0 2rem;
+  letter-spacing: .03em;
+}
+
+.linp {
+  background: rgba(255,255,255,.04);
+  border: 1.5px solid rgba(255,255,255,.1);
+  border-radius: 12px;
+  padding: .85rem 1.2rem;
+  font-size: .95rem;
+  letter-spacing: .15em;
+  color: var(--t1);
+  transition: border-color .2s, box-shadow .2s, background .2s;
+}
+.linp:focus {
+  border-color: var(--gold);
+  background: rgba(240,168,40,.05);
+  box-shadow: 0 0 0 3px rgba(240,168,40,.12);
+}
+
+.btn-pri {
+  background: var(--G-gold);
+  color: #0a0600;
+  font-weight: 700;
+  letter-spacing: .02em;
+  box-shadow: 0 4px 16px rgba(240,168,40,.3);
+}
+.btn-pri:hover {
+  box-shadow: 0 6px 24px rgba(240,168,40,.45);
+  transform: translateY(-2px);
+  opacity: 1;
+}
+
+.lhint {
+  font-size: .68rem;
+  color: rgba(77,100,130,.8);
+  margin-top: 1.25rem;
+}
+
+/* ══════════ HEADER ══════════ */
+.hdr {
+  background: rgba(5,9,18,.95);
+  border-bottom: 1px solid rgba(240,168,40,.12);
+  box-shadow: 0 1px 0 rgba(255,255,255,.03), 0 4px 24px rgba(0,0,0,.4);
+}
+
+.hdr-emblem {
+  font-size: 2.2rem;
+  filter: drop-shadow(0 0 12px rgba(240,168,40,.45));
+}
+
+.hdr-eyebrow {
+  font-size: .52rem;
+  letter-spacing: .25em;
+  color: rgba(240,168,40,.7);
+  text-transform: uppercase;
+}
+
+.hdr-name {
+  font-family: 'Bebas Neue', 'Inter', sans-serif;
+  font-size: 2rem;
+  font-weight: 400;
+  letter-spacing: .06em;
+  background: var(--G-gold);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1;
+}
+
+.hdr-sub {
+  font-size: .55rem;
+  color: rgba(143,165,197,.5);
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  margin-top: .15rem;
+}
+
+/* ══════════ NAV TABS ══════════ */
+.nav {
+  background: rgba(7,12,22,.92);
+  border-bottom: 1px solid rgba(255,255,255,.05);
+}
+
+.ntab {
+  font-size: .78rem;
+  font-weight: 500;
+  color: rgba(77,100,130,.9);
+  padding: .72rem 1.05rem;
+  transition: color .18s;
+  position: relative;
+}
+
+.ntab.on {
+  color: var(--gold);
+  font-weight: 700;
+}
+
+.ntab.on::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 12%;
+  right: 12%;
+  height: 2.5px;
+  background: var(--G-gold);
+  border-radius: 2px 2px 0 0;
+  box-shadow: 0 0 8px rgba(240,168,40,.5);
+}
+
+/* ══════════ PODIUM ══════════ */
+.pod {
+  border-radius: 20px;
+  transition: transform .25s cubic-bezier(.34,1.26,.64,1);
+}
+.pod:hover { transform: translateY(-6px); }
+
+.pod-1 {
+  background: linear-gradient(160deg, #201400 0%, #0f1822 60%, var(--c2) 100%);
+  border: 1px solid rgba(240,168,40,.4);
+  box-shadow: 0 0 60px rgba(240,168,40,.12), 0 12px 40px rgba(0,0,0,.6), inset 0 1px 0 rgba(240,168,40,.15);
+}
+
+.pod-2 {
+  background: linear-gradient(160deg, #0d1622 0%, var(--c2) 100%);
+  border: 1px solid rgba(148,163,184,.18);
+  box-shadow: 0 8px 32px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,255,255,.04);
+}
+
+.pod-3 {
+  background: linear-gradient(160deg, #140e00 0%, var(--c2) 100%);
+  border: 1px solid rgba(180,100,9,.25);
+  box-shadow: 0 8px 32px rgba(0,0,0,.4), inset 0 1px 0 rgba(180,100,9,.08);
+}
+
+.pod-pts {
+  font-family: 'Bebas Neue', 'Inter', sans-serif;
+  font-size: 3.2rem;
+  font-weight: 400;
+  letter-spacing: .03em;
+}
+
+/* ══════════ LEADERBOARD ══════════ */
+.lb-row {
+  background: rgba(12,20,34,.8);
+  border: 1px solid rgba(255,255,255,.05);
+  border-radius: 14px;
+  padding: .8rem 1.1rem;
+  transition: all .18s;
+  backdrop-filter: blur(4px);
+}
+
+.lb-row:hover {
+  background: rgba(17,29,48,.95);
+  border-color: rgba(240,168,40,.18);
+  transform: translateX(3px);
+  box-shadow: 0 4px 20px rgba(0,0,0,.3), -3px 0 0 rgba(240,168,40,.3);
+}
+
+.lb-pts {
+  font-family: 'Bebas Neue', 'Inter', sans-serif;
+  font-size: 1.55rem;
+  font-weight: 400;
+  letter-spacing: .04em;
+}
+
+/* ══════════ MINI STATS (haut classement) ══════════ */
+.mini-stat {
+  background: linear-gradient(140deg, rgba(12,20,34,.9) 0%, rgba(7,12,22,.95) 100%);
+  border: 1px solid rgba(255,255,255,.06);
+  border-radius: 14px;
+  padding: 1rem 1.1rem;
+  box-shadow: var(--shadow-card);
+  transition: all .2s;
+}
+.mini-stat:hover {
+  border-color: rgba(240,168,40,.2);
+  box-shadow: 0 4px 20px rgba(0,0,0,.4), 0 0 20px rgba(240,168,40,.06);
+  transform: translateY(-2px);
+}
+
+.mini-stat-v {
+  font-family: 'Bebas Neue', 'Inter', sans-serif;
+  font-size: 2.2rem;
+  font-weight: 400;
+  letter-spacing: .04em;
+}
+
+/* ══════════ TABLE MATCHS ══════════ */
+.tshell {
+  border: 1px solid rgba(255,255,255,.07);
+  border-radius: 16px;
+  background: rgba(7,12,22,.95);
+  box-shadow: 0 4px 32px rgba(0,0,0,.5), 0 0 0 1px rgba(255,255,255,.03);
+  overflow: hidden;
+}
+
+table.tbl th {
+  background: rgba(10,17,30,.95);
+  font-size: .6rem;
+  letter-spacing: .1em;
+  color: rgba(77,100,130,.9);
+  padding: .45rem .5rem;
+  border-bottom: 1px solid rgba(255,255,255,.07);
+}
+
+table.tbl td {
+  padding: .52rem .5rem;
+  border-bottom: 1px solid rgba(255,255,255,.04);
+  font-size: .8rem;
+}
+
+table.tbl tbody tr:hover td {
+  background: rgba(240,168,40,.035);
+}
+
+table.tbl tbody tr.played td {
+  background: rgba(0,204,122,.025);
+}
+
+/* Score box dans tableau */
+.score-box.done {
+  border-color: rgba(0,204,122,.3);
+  background: rgba(0,204,122,.08);
+  box-shadow: 0 0 12px rgba(0,204,122,.08);
+}
+
+.sv {
+  font-family: 'Bebas Neue', 'Inter', sans-serif;
+  font-size: 1.05rem;
+  letter-spacing: .04em;
+}
+
+/* ══════════ STATS PAGE ══════════ */
+.st-card {
+  background: rgba(10,17,30,.9);
+  border: 1px solid rgba(255,255,255,.06);
+  border-radius: 14px;
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+}
+
+.st-card-head {
+  background: rgba(5,9,18,.8);
+  border-bottom: 1px solid rgba(255,255,255,.07);
+  padding: .55rem .85rem;
+  font-size: .58rem;
+  letter-spacing: .14em;
+  color: var(--gold);
+}
+
+.st-row {
+  padding: .35rem .7rem;
+  transition: background .15s;
+}
+
+.st-row:hover {
+  background: rgba(240,168,40,.04);
+}
+
+.st-name {
+  font-size: .75rem;
+  font-weight: 600;
+}
+
+.st-val {
+  font-family: 'Bebas Neue', 'Inter', sans-serif;
+  font-size: 1.05rem;
+  font-weight: 400;
+  letter-spacing: .04em;
+}
+
+.st-val.goals { color: var(--grn); }
+.st-val.assists { color: var(--blu2); }
+
+/* ══════════ SECTION TITLES ══════════ */
+.sec-title {
+  font-size: 1.15rem;
+  font-weight: 800;
+  letter-spacing: -.02em;
+}
+
+.sec-title-g {
+  background: var(--G-gold);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ══════════ NOTICE BANNERS ══════════ */
+.notice {
+  border-radius: 12px;
+  padding: .75rem 1.1rem;
+  font-size: .8rem;
+  backdrop-filter: blur(4px);
+}
+
+.n-gst {
+  background: rgba(59,130,246,.06);
+  border: 1px solid rgba(59,130,246,.18);
+}
+
+/* ══════════ PILLS / CHIPS ══════════ */
+.pill {
+  border-radius: 22px;
+  padding: .32rem 1rem;
+  font-size: .74rem;
+  font-weight: 600;
+  border: 1px solid rgba(255,255,255,.08);
+  background: rgba(12,20,34,.8);
+  color: rgba(143,165,197,.8);
+  transition: all .15s;
+}
+
+.pill.on, .pill:hover {
+  background: var(--G-gold);
+  color: #0a0600;
+  border-color: transparent;
+  box-shadow: 0 3px 12px rgba(240,168,40,.3);
+}
+
+/* ══════════ CHIP LIVE ══════════ */
+.chip-live.on {
+  background: rgba(0,204,122,.12);
+  border: 1px solid rgba(0,204,122,.3);
+  box-shadow: 0 0 12px rgba(0,204,122,.15);
+}
+
+.ldot {
+  box-shadow: 0 0 6px rgba(0,204,122,.6);
+}
+
+/* ══════════ MODAL MATCH ══════════ */
+.mdetail {
+  background: linear-gradient(160deg, #0d1628 0%, #070c16 100%);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 22px;
+  box-shadow: 0 32px 80px rgba(0,0,0,.75), 0 0 0 1px rgba(240,168,40,.06);
+}
+
+.md-head {
+  background: linear-gradient(160deg, rgba(17,29,48,.9) 0%, rgba(7,12,22,.8) 100%);
+  border-bottom: 1px solid rgba(255,255,255,.06);
+}
+
+.md-score-val {
+  font-family: 'Bebas Neue', 'Inter', sans-serif;
+  font-size: 3.5rem;
+  font-weight: 400;
+  letter-spacing: .05em;
+}
+
+/* ══════════ TOAST ══════════ */
+.toast {
+  background: rgba(12,20,34,.95);
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 12px;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 8px 32px rgba(0,0,0,.5);
+}
+
+/* ══════════ SCROLLBAR GLOBALE ══════════ */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(240,168,40,.2); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(240,168,40,.4); }
+
+/* ══════════ PROGRESS BAR TOURNOI ══════════ */
+.prog-bar-wrap {
+  background: linear-gradient(135deg, rgba(12,20,34,.9) 0%, rgba(7,12,22,.95) 100%);
+  border: 1px solid rgba(255,255,255,.06);
+  border-radius: 16px;
+  box-shadow: var(--shadow-card);
+}
+
+.prog-track-fill {
+  background: var(--G-gold);
+  box-shadow: 0 0 12px rgba(240,168,40,.3);
+}
+
+/* ══════════ GROUPE CARDS ══════════ */
+.gb-card {
+  background: rgba(10,17,30,.85);
+  border: 1px solid rgba(255,255,255,.05);
+  border-radius: 12px;
+  transition: all .2s;
+}
+
+.gb-card:hover {
+  border-color: rgba(240,168,40,.2);
+  background: rgba(17,29,48,.9);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0,0,0,.3);
+}
+
+/* ══════════ BRACKET ══════════ */
+.bk-card {
+  background: rgba(10,17,30,.9);
+  border: 1px solid rgba(255,255,255,.06);
+  border-radius: 10px;
+  transition: border-color .18s;
+}
+
+.bk-card:hover { border-color: rgba(240,168,40,.25); }
+
+.bk-card.bk-final {
+  border-color: rgba(240,168,40,.35);
+  background: linear-gradient(160deg, rgba(17,29,48,.95), rgba(20,14,0,.4));
+  box-shadow: 0 0 24px rgba(240,168,40,.08);
+}
+
+/* ══════════ JOURNAL ══════════ */
+.jn-paper {
+  background: rgba(10,17,30,.9);
+  border: 1px solid rgba(255,255,255,.06);
+  border-radius: 16px;
+  box-shadow: var(--shadow-card);
+}
+
+/* ══════════ ÉVOLUTION CHART ══════════ */
+.ev-chart-wrap {
+  background: rgba(10,17,30,.9);
+  border: 1px solid rgba(255,255,255,.06);
+  border-radius: 16px;
+  box-shadow: var(--shadow-card);
+}
+
+/* ══════════ COMPARE ══════════ */
+.bar-chart-card, .cmp-sel-card {
+  background: rgba(10,17,30,.9);
+  border: 1px solid rgba(255,255,255,.06);
+  border-radius: 16px;
+  box-shadow: var(--shadow-card);
+}
+
+.cmp-card {
+  background: rgba(12,20,34,.85);
+  border: 1px solid rgba(255,255,255,.06);
+  border-radius: 14px;
+  transition: all .2s;
+}
+
+.cmp-card:hover {
+  border-color: rgba(240,168,40,.2);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(0,0,0,.35);
+}
+
+.cmp-card-pts {
+  font-family: 'Bebas Neue', 'Inter', sans-serif;
+  font-size: 2.2rem;
+  font-weight: 400;
+  letter-spacing: .04em;
+}
+
+/* ══════════ EMPTY STATES ══════════ */
+.empty {
+  padding: 4rem 2rem;
+  color: rgba(77,100,130,.7);
+}
+
+/* ══════════ BODY BG — légère amélioration ══════════ */
+body::before {
+  background:
+    radial-gradient(ellipse 140% 70% at 10% -20%, rgba(59,130,246,.10) 0%, transparent 50%),
+    radial-gradient(ellipse 100% 60% at 90% 110%, rgba(240,168,40,.09) 0%, transparent 50%),
+    radial-gradient(ellipse 70% 70% at 50% 50%, rgba(0,204,122,.03) 0%, transparent 60%);
+}
+
+/* ══════════ MODE CLAIR — adaptations ══════════ */
+body.light .lcard {
+  background: linear-gradient(160deg, #ffffff 0%, #f0f4f8 100%);
+  border-color: rgba(180,83,9,.2);
+  box-shadow: 0 32px 64px rgba(0,0,0,.12), 0 0 0 1px rgba(0,0,0,.05);
+}
+
+body.light .hdr {
+  background: rgba(255,255,255,.94);
+  border-bottom-color: rgba(180,83,9,.12);
+  box-shadow: 0 1px 0 rgba(0,0,0,.05), 0 4px 24px rgba(0,0,0,.08);
+}
+
+body.light .lb-row:hover {
+  background: rgba(240,230,215,.5);
+  border-color: rgba(180,83,9,.2);
+  box-shadow: 0 4px 20px rgba(0,0,0,.08), -3px 0 0 rgba(180,83,9,.3);
+}
+
+body.light .tshell {
+  background: rgba(255,255,255,.95);
+  border-color: rgba(0,0,0,.08);
+}
+
+body.light .st-card {
+  background: rgba(255,255,255,.9);
+  border-color: rgba(0,0,0,.07);
+}
+
+body.light .mini-stat {
+  background: linear-gradient(140deg, #ffffff 0%, #f8fafc 100%);
+  border-color: rgba(0,0,0,.07);
+}
 </style>
 </head>
 <body>
