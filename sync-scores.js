@@ -199,12 +199,15 @@ async function fetchESPN() {
 }
 
 // ─── FETCH BACKUP worldcup26.ir ────────────────────────────────────
+// Retourne { updates, liveState } pour pouvoir combler les trous laissés
+// par un éventuel cache figé côté ESPN (statuts/scores non rafraîchis).
 async function fetchWC26() {
   try {
     console.log('📡 Fetching backup worldcup26.ir...');
     const data = await fetchJSON('https://worldcup26.ir/get/games');
     const games = data.games || data || [];
     const updates = {};
+    const liveState = {};
     for (const g of games) {
       if (!g.finished && !g.live) continue;
       const hn = normName(g.home_team?.name || g.homeTeam || '');
@@ -212,13 +215,16 @@ async function fetchWC26() {
       const gh = parseInt(g.home_score ?? g.homeScore) || 0;
       const ga = parseInt(g.away_score ?? g.awayScore) || 0;
       const found = MATCHES.find(m => m[1] === hn && m[2] === an);
-      if (found) updates[found[0]] = [gh, ga];
+      if (found) {
+        updates[found[0]] = [gh, ga];
+        if (g.live) liveState[found[0]] = true;
+      }
     }
-    console.log(`  ✅ WC26 backup: ${Object.keys(updates).length} matchs`);
-    return updates;
+    console.log(`  ✅ WC26 backup: ${Object.keys(updates).length} matchs, ${Object.keys(liveState).length} en direct`);
+    return { updates, liveState };
   } catch (e) {
     console.warn(`  ⚠️  WC26 backup échoué: ${e.message}`);
-    return {};
+    return { updates: {}, liveState: {} };
   }
 }
 
@@ -239,14 +245,16 @@ async function main() {
     console.warn('⚠️  Lecture Firebase échouée:', e.message);
   }
 
-  // 2. Fetch ESPN
+  // 2. Fetch ESPN (source principale)
   let newScores = { ...currentRS };
   let aeUpdates = {};
   let liveState = {};
+  let espnMatchIds = new Set();
 
   try {
     const { updates, eventMap, liveState: ls } = await fetchESPN();
     liveState = ls || {};
+    espnMatchIds = new Set(Object.keys(updates).filter(k => !k.startsWith('__ae_')).map(Number));
     let changed = 0;
     for (const [k, v] of Object.entries(updates)) {
       if (k.startsWith('__ae_')) {
@@ -261,16 +269,35 @@ async function main() {
         console.log(`  🔄 Match #${id}: ${v[0]}-${v[1]}`);
       }
     }
-    if (changed === 0) console.log('  ✓ Aucun changement de score');
+    if (changed === 0) console.log('  ✓ Aucun changement de score (ESPN)');
   } catch (e) {
     console.warn('⚠️  ESPN échoué:', e.message);
-    // Fallback backup
-    try {
-      const backup = await fetchWC26();
-      for (const [k, v] of Object.entries(backup)) newScores[+k] = v;
-    } catch (e2) {
-      console.warn('⚠️  Backup aussi échoué:', e2.message);
+  }
+
+  // 2b. Fetch backup worldcup26.ir — toujours interrogé, en complément d'ESPN.
+  //     Comble les trous si ESPN renvoie un cache figé (match absent ou
+  //     statut/score non rafraîchi pour un match qu'on n'a pas vu chez ESPN).
+  try {
+    const { updates: backupUpdates, liveState: backupLive } = await fetchWC26();
+    let backupChanged = 0;
+    for (const [k, v] of Object.entries(backupUpdates)) {
+      const id = +k;
+      const cur = newScores[id];
+      // On ne laisse le backup écraser que s'ESPN n'a rien dit sur ce match
+      // (cache figé) OU si le score diffère de ce qu'on a déjà.
+      if (!espnMatchIds.has(id) && (!cur || cur[0] !== v[0] || cur[1] !== v[1])) {
+        newScores[id] = v;
+        backupChanged++;
+        console.log(`  🔄 [backup] Match #${id}: ${v[0]}-${v[1]}`);
+      }
     }
+    for (const [k, isLive] of Object.entries(backupLive)) {
+      const id = +k;
+      if (!espnMatchIds.has(id) && isLive) liveState[id] = true;
+    }
+    if (backupChanged === 0) console.log('  ✓ Aucun complément nécessaire depuis le backup');
+  } catch (e) {
+    console.warn('⚠️  Backup échoué:', e.message);
   }
 
   // 3. Écrire dans Firebase
