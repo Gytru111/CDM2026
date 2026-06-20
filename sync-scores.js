@@ -168,10 +168,15 @@ async function fetchESPN() {
             const isHome = d.team?.id === homeTeamId;
             const side = swapped ? (isHome ? 'a' : 'h') : (isHome ? 'h' : 'a');
             const player = d.athletesInvolved?.[0]?.displayName || '';
+            // Le 2e athlète impliqué dans un but est généralement le passeur
+            // décisif (sauf pour un but contre son camp, où il n'y en a pas).
+            const assist = (d.scoringPlay && !d.ownGoal)
+              ? (d.athletesInvolved?.[1]?.displayName || '')
+              : '';
             if (d.scoringPlay) {
               if (d.ownGoal) aeParsed.push({ type: 'owngoal', min, side, player });
-              else if (d.penaltyKick) aeParsed.push({ type: 'pen', min, side, player });
-              else aeParsed.push({ type: 'goal', min, side, player });
+              else if (d.penaltyKick) aeParsed.push({ type: 'pen', min, side, player, assist });
+              else aeParsed.push({ type: 'goal', min, side, player, assist });
             } else if (d.yellowCard) {
               aeParsed.push({ type: 'yellow', min, side, player });
             } else if (d.redCard) {
@@ -218,12 +223,6 @@ async function fetchWC26() {
       if (found) {
         updates[found[0]] = [gh, ga];
         if (g.live) liveState[found[0]] = true;
-        continue;
-      }
-      const foundSwapped = MATCHES.find(m => m[1] === an && m[2] === hn);
-      if (foundSwapped) {
-        updates[foundSwapped[0]] = [ga, gh];
-        if (g.live) liveState[foundSwapped[0]] = true;
       }
     }
     console.log(`  ✅ WC26 backup: ${Object.keys(updates).length} matchs, ${Object.keys(liveState).length} en direct`);
@@ -256,15 +255,11 @@ async function main() {
   let aeUpdates = {};
   let liveState = {};
   let espnMatchIds = new Set();
-  let espnFinishedIds = new Set();
 
   try {
     const { updates, eventMap, liveState: ls } = await fetchESPN();
     liveState = ls || {};
     espnMatchIds = new Set(Object.keys(updates).filter(k => !k.startsWith('__ae_')).map(Number));
-    Object.entries(eventMap || {}).forEach(([id, info]) => {
-      if (info.status && !info.isLive) espnFinishedIds.add(+id); // STATUS_FINAL / STATUS_FULL_TIME
-    });
     let changed = 0;
     for (const [k, v] of Object.entries(updates)) {
       if (k.startsWith('__ae_')) {
@@ -285,71 +280,29 @@ async function main() {
   }
 
   // 2b. Fetch backup worldcup26.ir — toujours interrogé, en complément d'ESPN.
-  //     ESPN peut renvoyer un statut/score erroné ou figé dans un sens comme
-  //     dans l'autre (en retard OU "Terminé" déclaré trop tôt). Le backup s'est
-  //     montré plus fiable pour le statut live en pratique : on lui fait
-  //     confiance en priorité pour le live, et on n'utilise le statut ESPN que
-  //     si le backup n'a rien à dire sur ce match (silence/erreur backup).
-  let backupOk = false;
+  //     Comble les trous si ESPN renvoie un cache figé (match absent ou
+  //     statut/score non rafraîchi pour un match qu'on n'a pas vu chez ESPN).
   try {
     const { updates: backupUpdates, liveState: backupLive } = await fetchWC26();
-    backupOk = true;
     let backupChanged = 0;
     for (const [k, v] of Object.entries(backupUpdates)) {
       const id = +k;
       const cur = newScores[id];
-      if (!cur || cur[0] !== v[0] || cur[1] !== v[1]) {
+      // On ne laisse le backup écraser que s'ESPN n'a rien dit sur ce match
+      // (cache figé) OU si le score diffère de ce qu'on a déjà.
+      if (!espnMatchIds.has(id) && (!cur || cur[0] !== v[0] || cur[1] !== v[1])) {
         newScores[id] = v;
         backupChanged++;
         console.log(`  🔄 [backup] Match #${id}: ${v[0]}-${v[1]}`);
       }
     }
-    // Le backup est prioritaire pour le statut live : si worldcup26.ir a une
-    // opinion sur ce match (live ou pas), on l'utilise telle quelle. On ne
-    // garde la valeur ESPN que pour les matchs dont le backup n'a pas parlé.
-    const backupReportedIds = new Set(Object.keys(backupUpdates).map(Number));
-    for (const id of backupReportedIds) {
-      if (backupLive[id]) liveState[id] = true;
-      else delete liveState[id]; // backup dit explicitement que ce n'est plus live
+    for (const [k, isLive] of Object.entries(backupLive)) {
+      const id = +k;
+      if (!espnMatchIds.has(id) && isLive) liveState[id] = true;
     }
     if (backupChanged === 0) console.log('  ✓ Aucun complément nécessaire depuis le backup');
   } catch (e) {
     console.warn('⚠️  Backup échoué:', e.message);
-  }
-
-  // 2c. Filets de sécurité anti faux-"Terminé" prématuré :
-  try {
-    const prevLive = await firebaseGet('live') || {};
-
-    // (a) Si le backup a complètement échoué ce cycle, on ne doit pas
-    //     désactiver un match qu'on savait live au cycle précédent sur la
-    //     seule foi d'ESPN (qui peut se tromper en disant "Terminé" trop tôt).
-    //     On conserve l'ancien état live pour ces matchs en attendant le
-    //     prochain cycle où le backup pourra confirmer/infirmer.
-    if (!backupOk) {
-      for (const [k, v] of Object.entries(prevLive)) {
-        if (v && liveState[+k] === undefined) {
-          liveState[+k] = true;
-          console.log(`  🛡️  Match #${k}: backup indisponible, on garde "live" (était live au cycle précédent)`);
-        }
-      }
-    }
-
-    // (b) Un score qui vient de changer PENDANT ce cycle est la preuve que le
-    //     match bouge encore réellement : on ne le laisse jamais repasser
-    //     "non live" même si une source dit le contraire, tant qu'on n'a pas
-    //     deux cycles consécutifs sans changement de score sur ce match.
-    for (const [k, v] of Object.entries(newScores)) {
-      const id = +k;
-      const cur = currentRS[id];
-      const justChanged = cur && (cur[0] !== v[0] || cur[1] !== v[1]);
-      if (justChanged && liveState[id] === undefined && prevLive[id]) {
-        liveState[id] = true;
-        console.log(`  🛡️  Match #${id}: score vient de changer, on garde "live" par sécurité`);
-      }
-    }
-  } catch (e) {
-    console.warn('⚠️  Vérification filet de sécurité live échouée:', e.message);
   }
 
   // 3. Écrire dans Firebase
