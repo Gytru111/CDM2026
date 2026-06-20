@@ -290,8 +290,10 @@ async function main() {
   //     montré plus fiable pour le statut live en pratique : on lui fait
   //     confiance en priorité pour le live, et on n'utilise le statut ESPN que
   //     si le backup n'a rien à dire sur ce match (silence/erreur backup).
+  let backupOk = false;
   try {
     const { updates: backupUpdates, liveState: backupLive } = await fetchWC26();
+    backupOk = true;
     let backupChanged = 0;
     for (const [k, v] of Object.entries(backupUpdates)) {
       const id = +k;
@@ -313,6 +315,41 @@ async function main() {
     if (backupChanged === 0) console.log('  ✓ Aucun complément nécessaire depuis le backup');
   } catch (e) {
     console.warn('⚠️  Backup échoué:', e.message);
+  }
+
+  // 2c. Filets de sécurité anti faux-"Terminé" prématuré :
+  try {
+    const prevLive = await firebaseGet('live') || {};
+
+    // (a) Si le backup a complètement échoué ce cycle, on ne doit pas
+    //     désactiver un match qu'on savait live au cycle précédent sur la
+    //     seule foi d'ESPN (qui peut se tromper en disant "Terminé" trop tôt).
+    //     On conserve l'ancien état live pour ces matchs en attendant le
+    //     prochain cycle où le backup pourra confirmer/infirmer.
+    if (!backupOk) {
+      for (const [k, v] of Object.entries(prevLive)) {
+        if (v && liveState[+k] === undefined) {
+          liveState[+k] = true;
+          console.log(`  🛡️  Match #${k}: backup indisponible, on garde "live" (était live au cycle précédent)`);
+        }
+      }
+    }
+
+    // (b) Un score qui vient de changer PENDANT ce cycle est la preuve que le
+    //     match bouge encore réellement : on ne le laisse jamais repasser
+    //     "non live" même si une source dit le contraire, tant qu'on n'a pas
+    //     deux cycles consécutifs sans changement de score sur ce match.
+    for (const [k, v] of Object.entries(newScores)) {
+      const id = +k;
+      const cur = currentRS[id];
+      const justChanged = cur && (cur[0] !== v[0] || cur[1] !== v[1]);
+      if (justChanged && liveState[id] === undefined && prevLive[id]) {
+        liveState[id] = true;
+        console.log(`  🛡️  Match #${id}: score vient de changer, on garde "live" par sécurité`);
+      }
+    }
+  } catch (e) {
+    console.warn('⚠️  Vérification filet de sécurité live échouée:', e.message);
   }
 
   // 3. Écrire dans Firebase
