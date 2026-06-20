@@ -218,6 +218,12 @@ async function fetchWC26() {
       if (found) {
         updates[found[0]] = [gh, ga];
         if (g.live) liveState[found[0]] = true;
+        continue;
+      }
+      const foundSwapped = MATCHES.find(m => m[1] === an && m[2] === hn);
+      if (foundSwapped) {
+        updates[foundSwapped[0]] = [ga, gh];
+        if (g.live) liveState[foundSwapped[0]] = true;
       }
     }
     console.log(`  ✅ WC26 backup: ${Object.keys(updates).length} matchs, ${Object.keys(liveState).length} en direct`);
@@ -279,10 +285,11 @@ async function main() {
   }
 
   // 2b. Fetch backup worldcup26.ir — toujours interrogé, en complément d'ESPN.
-  //     ESPN peut renvoyer un cache figé (match présent mais score/statut pas à
-  //     jour) : dans ce cas on ne doit PAS se limiter aux matchs absents d'ESPN,
-  //     sinon un score plus récent du backup est ignoré. On compare toujours les
-  //     scores et on garde le plus à jour (le backup peut corriger ESPN).
+  //     ESPN peut renvoyer un statut/score erroné ou figé dans un sens comme
+  //     dans l'autre (en retard OU "Terminé" déclaré trop tôt). Le backup s'est
+  //     montré plus fiable pour le statut live en pratique : on lui fait
+  //     confiance en priorité pour le live, et on n'utilise le statut ESPN que
+  //     si le backup n'a rien à dire sur ce match (silence/erreur backup).
   try {
     const { updates: backupUpdates, liveState: backupLive } = await fetchWC26();
     let backupChanged = 0;
@@ -295,12 +302,13 @@ async function main() {
         console.log(`  🔄 [backup] Match #${id}: ${v[0]}-${v[1]}`);
       }
     }
-    // Union des états live ESPN + backup (un match est live si l'une des deux
-    // sources le dit), sauf si ESPN a explicitement confirmé le match terminé
-    // (évite qu'un backup en retard ne remarque "live" un match déjà fini).
-    for (const [k, isLive] of Object.entries(backupLive)) {
-      const id = +k;
-      if (isLive && !espnFinishedIds.has(id)) liveState[id] = true;
+    // Le backup est prioritaire pour le statut live : si worldcup26.ir a une
+    // opinion sur ce match (live ou pas), on l'utilise telle quelle. On ne
+    // garde la valeur ESPN que pour les matchs dont le backup n'a pas parlé.
+    const backupReportedIds = new Set(Object.keys(backupUpdates).map(Number));
+    for (const id of backupReportedIds) {
+      if (backupLive[id]) liveState[id] = true;
+      else delete liveState[id]; // backup dit explicitement que ce n'est plus live
     }
     if (backupChanged === 0) console.log('  ✓ Aucun complément nécessaire depuis le backup');
   } catch (e) {
