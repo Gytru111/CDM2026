@@ -250,11 +250,15 @@ async function main() {
   let aeUpdates = {};
   let liveState = {};
   let espnMatchIds = new Set();
+  let espnFinishedIds = new Set();
 
   try {
     const { updates, eventMap, liveState: ls } = await fetchESPN();
     liveState = ls || {};
     espnMatchIds = new Set(Object.keys(updates).filter(k => !k.startsWith('__ae_')).map(Number));
+    Object.entries(eventMap || {}).forEach(([id, info]) => {
+      if (info.status && !info.isLive) espnFinishedIds.add(+id); // STATUS_FINAL / STATUS_FULL_TIME
+    });
     let changed = 0;
     for (const [k, v] of Object.entries(updates)) {
       if (k.startsWith('__ae_')) {
@@ -275,25 +279,28 @@ async function main() {
   }
 
   // 2b. Fetch backup worldcup26.ir — toujours interrogé, en complément d'ESPN.
-  //     Comble les trous si ESPN renvoie un cache figé (match absent ou
-  //     statut/score non rafraîchi pour un match qu'on n'a pas vu chez ESPN).
+  //     ESPN peut renvoyer un cache figé (match présent mais score/statut pas à
+  //     jour) : dans ce cas on ne doit PAS se limiter aux matchs absents d'ESPN,
+  //     sinon un score plus récent du backup est ignoré. On compare toujours les
+  //     scores et on garde le plus à jour (le backup peut corriger ESPN).
   try {
     const { updates: backupUpdates, liveState: backupLive } = await fetchWC26();
     let backupChanged = 0;
     for (const [k, v] of Object.entries(backupUpdates)) {
       const id = +k;
       const cur = newScores[id];
-      // On ne laisse le backup écraser que s'ESPN n'a rien dit sur ce match
-      // (cache figé) OU si le score diffère de ce qu'on a déjà.
-      if (!espnMatchIds.has(id) && (!cur || cur[0] !== v[0] || cur[1] !== v[1])) {
+      if (!cur || cur[0] !== v[0] || cur[1] !== v[1]) {
         newScores[id] = v;
         backupChanged++;
         console.log(`  🔄 [backup] Match #${id}: ${v[0]}-${v[1]}`);
       }
     }
+    // Union des états live ESPN + backup (un match est live si l'une des deux
+    // sources le dit), sauf si ESPN a explicitement confirmé le match terminé
+    // (évite qu'un backup en retard ne remarque "live" un match déjà fini).
     for (const [k, isLive] of Object.entries(backupLive)) {
       const id = +k;
-      if (!espnMatchIds.has(id) && isLive) liveState[id] = true;
+      if (isLive && !espnFinishedIds.has(id)) liveState[id] = true;
     }
     if (backupChanged === 0) console.log('  ✓ Aucun complément nécessaire depuis le backup');
   } catch (e) {
