@@ -67,9 +67,9 @@ const R32_MATCHES=[
 // comment déterminer les équipes d'un match KO à partir des tours précédents.
 // type='w' → vainqueur du match d'ID donné ; type='l' → perdant du match d'ID donné
 const BRACKET_R16 = [
-  {id:89, src:[{id:74,type:'w'},{id:77,type:'w'}]},
+  {id:89, src:[{id:75,type:'w'},{id:78,type:'w'}]},
   {id:90, src:[{id:73,type:'w'},{id:76,type:'w'}]},
-  {id:91, src:[{id:75,type:'w'},{id:78,type:'w'}]},
+  {id:91, src:[{id:74,type:'w'},{id:77,type:'w'}]},
   {id:92, src:[{id:79,type:'w'},{id:80,type:'w'}]},
   {id:93, src:[{id:84,type:'w'},{id:83,type:'w'}]},
   {id:94, src:[{id:82,type:'w'},{id:81,type:'w'}]},
