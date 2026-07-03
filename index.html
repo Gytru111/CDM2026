@@ -990,15 +990,17 @@ table.tbl tbody tr.played td{background:rgba(45,198,83,.02)}
 </head>
 <body>
 
-<!-- INFO PRONOS POPUP (affiché une seule fois, après connexion) -->
+<!-- INFO PRONOS 8ES (affiché une seule fois après connexion) -->
 <div id="pn-info-modal" class="overlay" style="display:none;z-index:920" onclick="if(event.target===this)closePnInfo()">
   <div class="lcard" style="max-width:380px">
     <div style="font-size:2.4rem;margin-bottom:.5rem">🎯</div>
-    <div style="font-size:1.05rem;font-weight:800;color:var(--t1);margin-bottom:.75rem">Pronostique la phase finale !</div>
+    <div style="font-size:1.05rem;font-weight:800;color:var(--t1);margin-bottom:.75rem">Pronostique les 8es de finale !</div>
     <div style="font-size:.85rem;color:var(--t2);line-height:1.6;text-align:left;background:var(--c3);border:1px solid var(--g2);border-radius:12px;padding:.9rem 1rem;margin-bottom:1.1rem">
+      Les 8es de finale débutent <b>samedi 28 juin</b> — n'attends pas la dernière minute pour faire tes pronostics !
+      <br><br>
       Rends-toi dans l'onglet <b style="color:var(--gold)">🎯 Pronostics</b>, section <b>« À pronostiquer »</b> : tu peux y entrer toi-même tes scores pour chaque match de la phase finale.
       <br><br>
-      🔒 Tes pronos restent <b>cachés aux autres joueurs</b> — ils ne deviennent visibles pour tout le monde qu'<b>au coup d'envoi du match</b>. La saisie se <b>verrouille 5 min avant</b> le coup d'envoi. Aucun risque de copiage ;)
+      🔒 Tes pronos restent <b>cachés aux autres joueurs</b> — ils ne deviennent visibles pour tout le monde qu'<b>au coup d'envoi du match</b>. La saisie se <b>verrouille 5 min avant</b> le coup d'envoi.
     </div>
     <button class="btn btn-pri" style="width:100%" onclick="closePnInfo()">C'est compris, j'y vais 👍</button>
   </div>
@@ -2929,13 +2931,13 @@ let _loginPendingName='';
 // connexion utilisé : avatar pré-listé ou pseudo libre).
 function showPnInfoIfFirstTime(){
   try{
-    if(localStorage.getItem('pn_info_seen')==='1') return;
-    localStorage.setItem('pn_info_seen','1');
+    if(localStorage.getItem('pn_info_8e_seen')==='1') return;
+    localStorage.setItem('pn_info_8e_seen','1');
   }catch(e){}
   setTimeout(()=>{
     const el=document.getElementById('pn-info-modal');
     if(el) el.style.display='flex';
-  }, 400); // léger délai pour ne pas se superposer au toast de bienvenue
+  }, 400);
 }
 function closePnInfo(){
   document.getElementById('pn-info-modal').style.display='none';
