@@ -128,12 +128,14 @@ function computeThirdPlaceRanking(rs) {
 
 function matchWinner(mid, rs) {
   const r = rs[mid];
-  if (!r || r[0] === null || r[1] === null) return null;
-  if (r[0] > r[1]) return 't1';
-  if (r[1] > r[0]) return 't2';
-  if (r[2] != null && r[3] != null) {
-    if (r[2] > r[3]) return 't1';
-    if (r[3] > r[2]) return 't2';
+  if (!r) return null;
+  if (r[0] != null && r[1] != null) {
+    if (r[0] > r[1]) return 't1';
+    if (r[1] > r[0]) return 't2';
+    if (r[2] != null && r[3] != null) {
+      if (r[2] > r[3]) return 't1';
+      if (r[3] > r[2]) return 't2';
+    }
   }
   if (r[4] === 't1' || r[4] === 't2') return r[4];
   return null;
