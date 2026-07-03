@@ -102,7 +102,7 @@ button,.chip,.ntab,.pill,.btn,.lb-row,.pod,.gb-card,.grp-tab,.bk-match{
 a,[onclick]{touch-action:manipulation}
 
 /* ══════════ DISPLAY TYPE — scoreboard face for headlines & numerals ══════════ */
-.hdr-name,.lcard-title,.sec-title,.fs-hero-title,.jn-title,.circus-title,.bk-champ-name,.cmp-sel-label,.bc-title{
+.hdr-name,.lcard-title,.sec-title,.fs-hero-title,.jn-title,.circus-title,.bk-champ-name{
   font-family:'Bebas Neue',Inter,sans-serif;letter-spacing:.03em}
 .prog-stat-v,.mini-stat-v,.pod-pts,.lb-pts,.cmp-card-pts,.md-score-val,.pc-pts,.ts-card-v,.fs-kpi-v,.gst .pts{
   font-family:'Bebas Neue',Inter,sans-serif;letter-spacing:.04em}
@@ -562,40 +562,6 @@ table.tbl tbody tr.played td{background:rgba(45,198,83,.02)}
 .ts-card-v{font-size:1.5rem;font-weight:900;line-height:1;letter-spacing:-.02em}
 
 /* ══════════ COMPARE ══════════ */
-.cmp-sel-card{background:var(--c2);border:1px solid var(--g1);border-radius:14px;padding:1.1rem 1.25rem;margin-bottom:1rem}
-.cmp-sel-label{font-size:.68rem;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.65rem}
-.cmp-sel-btns{display:flex;flex-wrap:wrap;gap:.38rem}
-.cp-btn{display:flex;align-items:center;gap:.35rem;padding:.3rem .85rem;border-radius:20px;
-  border:1.5px solid var(--g2);background:var(--c3);color:var(--t3);font-size:.78rem;
-  cursor:pointer;transition:all .15s;font-weight:500;touch-action:manipulation;-webkit-appearance:none}
-.cp-btn.on{font-weight:700;color:#000}
-.cp-btn:hover:not(.on){border-color:var(--blu);color:var(--t1)}
-
-.bar-chart-card{background:var(--c2);border:1px solid var(--g1);border-radius:14px;padding:1.1rem 1.25rem;margin-bottom:1rem}
-.bc-title{font-size:.68rem;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.9rem}
-.bc-row{display:flex;align-items:center;gap:.65rem;margin-bottom:.5rem}
-.bc-lbl{width:85px;font-size:.76rem;font-weight:600;text-align:right;flex-shrink:0;
-  display:flex;align-items:center;justify-content:flex-end;gap:.3rem;overflow:hidden}
-.bc-track{flex:1;background:var(--c4);border-radius:99px;height:22px;overflow:hidden}
-.bc-fill{height:100%;border-radius:99px;display:flex;align-items:center;justify-content:flex-end;
-  padding-right:.45rem;min-width:2px;transition:width .8s cubic-bezier(.4,0,.2,1)}
-.bc-pts-txt{font-size:.76rem;font-weight:800;color:#000;white-space:nowrap}
-.bc-pct{width:36px;font-size:.7rem;font-weight:700;color:var(--t3);text-align:right;flex-shrink:0}
-.bc-medal{width:22px;font-size:.88rem;text-align:center;flex-shrink:0}
-
-.cmp-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(135px,1fr));gap:.65rem;margin-bottom:1rem}
-.cmp-card{background:var(--c2);border:1px solid var(--g1);border-radius:12px;
-  padding:.9rem;text-align:center;position:relative;overflow:hidden;transition:transform .2s}
-.cmp-card:hover{transform:translateY(-2px);border-color:var(--g2)}
-.cmp-crown{position:absolute;top:-1px;right:-1px;background:var(--gold);color:#000;
-  font-size:.58rem;font-weight:800;padding:.12rem .38rem;border-radius:0 12px 0 6px}
-.cmp-card-name{font-size:.76rem;font-weight:700;margin-bottom:.4rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.cmp-card-pts{font-size:1.95rem;font-weight:900;line-height:1;letter-spacing:-.03em}
-.cmp-card-pts small{font-size:.62rem;color:var(--t3);font-weight:400}
-.cmp-mini{display:flex;justify-content:space-around;margin-top:.42rem;font-size:.67rem;color:var(--t3)}
-.cmp-mini div{text-align:center}
-.cmp-mini b{display:block;color:var(--t1);font-size:.8rem;font-weight:700}
-
 /* ══════════ MATCH DETAIL MODAL ══════════ */
 .mdetail{background:var(--c1);border:1px solid var(--g2);border-radius:20px;
   width:min(640px,96vw);max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;
@@ -1013,7 +979,6 @@ table.tbl tbody tr.played td{background:rgba(45,198,83,.02)}
     <div class="ntab" id="nt-gr" onclick="showTab('gr')"><span class="ntab-ico">🌍</span>Groupes</div>
     <div class="ntab" id="nt-pn" onclick="showTab('pn')"><span class="ntab-ico">🎯</span>Pronostics</div>
     <div class="ntab" id="nt-bk" onclick="showTab('bk')"><span class="ntab-ico">🏆</span>Bracket</div>
-    <div class="ntab" id="nt-cp" onclick="showTab('cp')"><span class="ntab-ico">⚡</span>Comparaison</div>
     <div class="ntab adm-only" id="nt-lg" onclick="showTab('lg')" style="display:none"><span class="ntab-ico">🔍</span>Logs</div>
     <span class="nav-indicator" id="nav-indicator"></span>
   </div>
@@ -1149,22 +1114,6 @@ table.tbl tbody tr.played td{background:rgba(45,198,83,.02)}
     <div style="font-size:.72rem;color:var(--t3)">Basé sur les classements actuels</div>
   </div>
   <div id="bk-wrap"></div>
-</div>
-
-<!-- ══ COMPARAISON ══ -->
-<div id="pg-cp" class="page">
-  <div class="sec"><div class="sec-title"><span class="sec-title-g">⚡ Comparaison joueurs</span></div></div>
-  <div class="cmp-sel-card">
-    <div class="cmp-sel-label">Sélectionnez les joueurs à comparer</div>
-    <div class="cmp-sel-btns" id="cp-sel"></div>
-  </div>
-  <div class="bar-chart-card" id="cp-bars"></div>
-  <div class="cmp-cards" id="cp-cards"></div>
-  <div id="cp-tbl-wrap" style="display:none">
-    <div class="sec" style="margin-bottom:.65rem"><div class="sec-title" style="font-size:1rem"><span class="sec-title-g">📋 Match par match</span></div></div>
-    <div class="tshell"><div class="thead-w" id="cp-thead"></div><div class="tbody-w" id="cp-tbody"></div></div>
-  </div>
-  <div class="empty" id="cp-empty"><span class="empty-ic">👥</span>Sélectionnez au moins 2 joueurs</div>
 </div>
 
 <!-- ══ LOGS ADMIN ══ -->
@@ -1378,7 +1327,6 @@ async function fetchESPNForMatch(matchId){
 // STATE
 // ═══════════════════════════════════════════════════
 let isAdmin=false;
-let selP=new Set();
 // Sélection des joueurs affichés dans le graphique Évolution (vide = tous)
 let curGrp='A';
 let curMM=null;
@@ -2011,11 +1959,6 @@ function openPhotoLB(pi){
 }
 function closePhotoLB(){
   document.getElementById('photoLB').style.display='none';
-}
-
-function toggleP(pi){
-  if(selP.has(pi))selP.delete(pi);else selP.add(pi);
-  renderCompare();
 }
 
 function selectGrp(g){
@@ -2716,7 +2659,7 @@ function renderPage(id){
   else if(id==='tb')renderTableau();
   else if(id==='gr')renderGroupes();
   else if(id==='bk')renderBracket();
-  else if(id==='cp')renderCompare();
+
   else if(id==='pn')renderPn();
   else if(id==='lg')renderLogs();
 }
@@ -3885,80 +3828,6 @@ function renderTournStats(stats){
 }
 
 // ═══════════════════════════════════════════════════
-// RENDER — COMPARAISON
-// ═══════════════════════════════════════════════════
-function renderCompare(){
-  renderCmpSel();
-  const sel=[...selP].sort();
-  if(sel.length<2){
-    document.getElementById('cp-bars').innerHTML=`<div class="bc-title">📊 Comparaison des points</div><div style="text-align:center;padding:1.5rem;color:var(--t4);font-size:.82rem">Sélectionnez au moins 2 joueurs</div>`;
-    document.getElementById('cp-cards').innerHTML='';
-    document.getElementById('cp-tbl-wrap').style.display='none';
-    document.getElementById('cp-empty').style.display='block';
-    return;
-  }
-  document.getElementById('cp-empty').style.display='none';
-  document.getElementById('cp-tbl-wrap').style.display='block';
-
-  const stats=sel.map(pi=>{
-    let p=0,e=0,w=0,pl=0;
-    MATCHES.forEach(m=>{const r=RS[m[0]]||[null,null];const x=pts(m[5][pi],r);if(x===null)return;pl++;p+=x;if(x===3)e++;if(x===1)w++;});
-    return{pi,name:PLAYERS[pi],pts:p,exact:e,winner:w,played:pl,col:COLORS[pi],av:AVATARS[pi]};
-  }).sort((a,b)=>b.pts-a.pts);
-  const mx=Math.max(...stats.map(s=>s.pts));
-  const medals=['🥇','🥈','🥉'];
-
-  // Bar chart
-  document.getElementById('cp-bars').innerHTML=`<div class="bc-title">📊 Comparaison des points</div>`+
-    stats.map((s,i)=>{
-      const w=mx>0?Math.round(s.pts/mx*100):0;
-      return `<div class="bc-row">
-        <div class="bc-lbl" style="color:${s.col}">${s.av} ${s.name}</div>
-        <div class="bc-track"><div class="bc-fill" style="width:${w}%;background:linear-gradient(90deg,${s.col},${s.col}99)">
-          ${s.pts>0?`<span class="bc-pts-txt">${s.pts} pts</span>`:''}
-        </div></div>
-        <div class="bc-pct">${w}%</div>
-        <div class="bc-medal">${medals[i]||''}</div>
-      </div>`;
-    }).join('');
-
-  // Stat cards
-  document.getElementById('cp-cards').innerHTML=stats.map((s,i)=>`
-    <div class="cmp-card" style="border-color:${s.col}20;background:${s.col}06">
-      ${i===0&&s.pts>0?'<div class="cmp-crown">👑 Leader</div>':''}
-      <div class="cmp-card-name" style="color:${s.col}">${s.av} ${s.name}</div>
-      <div class="cmp-card-pts" style="color:${s.col}">${s.pts}<small> pts</small></div>
-      <div class="cmp-mini">
-        <div><b>${s.exact}</b>🎯</div><div><b>${s.winner}</b>✅</div><div><b>${s.played}</b>📋</div>
-      </div>
-    </div>`).join('');
-
-  // Compare table
-  document.getElementById('cp-thead').innerHTML=`<table class="tbl" style="margin-bottom:-1px"><thead><tr>
-    <th style="width:24px">#</th><th style="width:180px">Match</th>
-    <th style="width:64px;text-align:center">Score</th>
-    ${stats.map(s=>`<th style="width:50px;text-align:center;color:${s.col}">${s.av}</th>`).join('')}
-  </tr></thead></table>`;
-
-  const cg=`<colgroup><col style="width:24px"><col style="width:180px"><col style="width:64px">${stats.map(()=>'<col style="width:50px">').join('')}</colgroup>`;
-  const rows=MATCHES.map(m=>{
-    const r=RS[m[0]]||[null,null];
-    const rs=r[0]!==null?`<div class="score-box done"><span class="sv">${r[0]}</span><span class="sdash">–</span><span class="sv">${r[1]}</span></div>`:`<span class="snone">?–?</span>`;
-    const cells=stats.map(s=>{
-      const x=pts(m[5][s.pi],r);
-      return`<td style="text-align:center;${x===3?`background:${s.col}10`:''}" ><span class="pb ${x===3?'pb3':x===1?'pb1':x===0?'pb0':'pb_'}" style="font-size:.74rem">${m[5][s.pi][0]}-${m[5][s.pi][1]}</span></td>`;
-    }).join('');
-    return`<tr onclick="openMM(${m[0]})">
-      <td style="color:var(--t4);font-size:.7rem">${m[0]}</td>
-      <td style="font-size:.74rem">${fl(m[3])} ${m[3]} – ${fl(m[4])} ${m[4]}</td>
-      <td style="text-align:center;padding:.3rem .4rem">${rs}</td>${cells}
-    </tr>`;
-  }).join('');
-  document.getElementById('cp-tbody').innerHTML=`<table class="tbl">${cg}<tbody>${rows}</tbody></table>`;
-  syncScroll('cp-thead','cp-tbody');
-}
-
-// ═══════════════════════════════════════════════════
 // RENDER — BRACKET (Tableau final projeté)
 // ═══════════════════════════════════════════════════
 // ═══════════════════════════════════════════════════
@@ -4518,15 +4387,6 @@ function renderBracket(){
   renderGroupsBanner('groups-banner-grid-bk');
 }
 
-// ═══════════════════════════════════════════════════
-function renderCmpSel(){
-  document.getElementById('cp-sel').innerHTML=PLAYERS.map((name,pi)=>{
-    const on=selP.has(pi);const col=COLORS[pi];
-    return`<button class="cp-btn${on?' on':''}" onclick="toggleP(${pi})"
-      style="${on?`border-color:${col};background:${col}15;color:${col}`:''}">
-      ${AVATARS[pi]} ${name}</button>`;
-  }).join('');
-}
 
 
 
