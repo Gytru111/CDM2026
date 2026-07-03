@@ -445,6 +445,18 @@ async function main() {
     console.warn('⚠️  Lecture Firebase échouée:', e.message);
   }
 
+  // Forcer les résultats des matchs KO connus (penalties, etc.)
+  // M75 Allemagne-Paraguay → Paraguay (t2) gagne TAB
+  currentRS[75] = [1, 1, null, null, 't2'];
+  // M76 Pays-Bas-Maroc → Maroc (t2) gagne TAB
+  currentRS[76] = [1, 1, null, null, 't2'];
+  // M86 Australie-Égypte → Égypte (t2) gagne TAB
+  currentRS[86] = [1, 1, null, null, 't2'];
+  // M81 Belgique-Sénégal → Belgique (t1) qualifiée
+  if (!currentRS[81] || (currentRS[81][0] === null && currentRS[81][1] === null)) {
+    currentRS[81] = [null, null, null, null, 't1'];
+  }
+
   // Construire les matchs KO à partir des résultats de groupes connus
   const koResult = buildKOMatches(currentRS);
   const koArr = koResult.arr;
