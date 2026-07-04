@@ -90,11 +90,18 @@ export function initLenis() {
   storytelling.init();
 }
 
-// ── showTab wrapper (page transitions) ──
+// ── showTab wrapper (smooth page transitions) ──
 export function wrapShowTab() {
   const orig = window.showTab;
   if (!orig) return;
+  let _busy = false;
   window.showTab = function(tab) {
+    if (_busy) return;
+    const prev = document.querySelector('.page.on');
+    const next = document.getElementById('pg-'+tab);
+    if (prev === next || !next) { if (!next) orig(tab); return; }
+    _busy = true;
+
     if (scene && scene.children) {
       const ambient = scene.children.find(c => c.isLight && c.type === 'AmbientLight');
       if (ambient && typeof gsap !== 'undefined') {
@@ -103,38 +110,49 @@ export function wrapShowTab() {
         gsap.to(ambient.color, { r:((targetColor>>16)&255)/255, g:((targetColor>>8)&255)/255, b:(targetColor&255)/255, duration:0.6, ease:'power2.inOut' });
       }
     }
-    const entrances = {
-      cl: { y:30,scale:1.02,rot:-1,blur:0,stagger:'power1.out' },
-      ma: { y:0,scale:0.92,rot:-3,blur:6,stagger:'power2.out' },
-      tb: { x:-40,scale:0.88,rot:0,blur:8,stagger:'power1.inOut' },
-      gr: { y:-25,scale:0.95,rot:4,blur:0,stagger:'power3.out' },
-      bk: { x:60,scale:0.93,rot:0,blur:4,stagger:'power2.inOut' },
-      pn: { y:40,scale:0.9,rot:2,blur:10,stagger:'power1.out' }
+
+    if (typeof gsap === 'undefined') { orig(tab); _busy = false; return; }
+
+    const lenis = getLenis();
+    if (lenis) lenis.stop();
+
+    const inCfg = {
+      cl: { from: { y:18, scale:1.02, rotation:-0.5 }, stagger:0.04 },
+      ma: { from: { y:0, scale:0.94, rotation:-2, filter:'blur(5px)' }, stagger:0.03 },
+      tb: { from: { x:-25, scale:0.9, rotation:0, filter:'blur(6px)' }, stagger:0.035 },
+      gr: { from: { y:-16, scale:0.96, rotation:3 }, stagger:0.04 },
+      bk: { from: { x:35, scale:0.94, rotation:0, filter:'blur(3px)' }, stagger:0.03 },
+      pn: { from: { y:24, scale:0.92, rotation:1.5, filter:'blur(8px)' }, stagger:0.05 }
     };
-    const e = entrances[tab] || { y:20,scale:0.95,rot:0,blur:0,stagger:'power2.out' };
-    if (typeof gsap !== 'undefined') {
-      const tl = gsap.timeline({ defaults: { ease: 'power3.inOut' } });
-      let hasActive = false;
-      document.querySelectorAll('.page').forEach(p => {
-        if (p.classList.contains('on')) {
-          hasActive = true;
-          const dir = { x: (Math.random()-0.5)*30, y: -12-Math.random()*8, rotation: (Math.random()-0.5)*6, scale:0.94, opacity:0, duration:0.25, ease:'power2.in' };
-          tl.to(p, dir).call(() => {
-            orig(tab);
-            const np = document.getElementById('pg-'+tab);
-            if (np) {
-              gsap.set(np, { opacity:0, x:e.x||0, y:e.y||0, scale:e.scale, rotation:e.rot||0, filter:`blur(${e.blur||0}px)` });
-              tl.to(np, { opacity:1, x:0, y:0, scale:1, rotation:0, filter:'blur(0)', duration:0.7, ease:'power3.out' });
-              document.querySelectorAll(`#pg-${tab} .anim-stagger`).forEach((el,i) => {
-                gsap.fromTo(el, { opacity:0, y:20, scale:0.95 }, { opacity:1, y:0, scale:1, duration:0.5, delay:0.1+i*0.04, ease:e.stagger });
-              });
-              setTimeout(initSectionAnims, 200);
+    const cfg = inCfg[tab] || { from: { y:12, scale:0.96 }, stagger:0.03 };
+
+    // Phase 1: fade out current page
+    gsap.to(prev, {
+      y: -8, opacity: 0, scale: 0.98,
+      duration: 0.18, ease: 'power2.in',
+      onComplete: () => {
+        orig(tab);
+        gsap.set(prev, { clearProps: 'all' });
+
+        // Phase 2: animate new page in
+        gsap.set(next, { opacity:0, x:0, y:0, rotation:0, scale:1, filter:'blur(0px)' });
+        gsap.set(next, cfg.from);
+        gsap.to(next, {
+          opacity:1, x:0, y:0, rotation:0, scale:1, filter:'blur(0px)',
+          duration: 0.5, ease: 'power3.out',
+          onComplete: () => {
+            // Stagger entrance for children
+            const kids = next.querySelectorAll('.anim-stagger');
+            if (kids.length) {
+              gsap.fromTo(kids, { opacity:0, y:10, scale:0.97 }, { opacity:1, y:0, scale:1, duration:0.35, stagger:cfg.stagger, ease:'power2.out' });
             }
-          }, null, '>-0.08');
-        }
-      });
-      if (!hasActive) { orig(tab); setTimeout(initSectionAnims, 200); }
-    } else orig(tab);
+            if (lenis) lenis.start();
+            _busy = false;
+            setTimeout(initSectionAnims, 120);
+          }
+        });
+      }
+    });
   };
 }
 
