@@ -282,10 +282,27 @@ function moveNavIndicator() {
 // ═══════════════════════════════════════════════════
 // LOGIN
 // ═══════════════════════════════════════════════════
+function buildLoginPlayers() {
+  const el = document.getElementById('login-players');
+  if (!el) return;
+  el.innerHTML = PLAYERS.map((name,i) => `
+    <button class="login-player-btn" onclick="loginAs('${name}',${i})">
+      <span class="lp-avatar">${AVATARS[i]}</span>
+      <span class="lp-name">${name}</span>
+    </button>`).join('') + `
+    <button class="login-player-btn lp-admin" onclick="loginAsAdmin()" style="grid-column:1/-1">
+      <span class="lp-avatar">🔑</span>
+      <span class="lp-name">Admin</span>
+    </button>`;
+}
+
+function closeLogin() { document.getElementById('ml').style.display = 'none'; }
+
 function loginAs(name, idx) {
-  const ml = document.getElementById('ml');
-  if (ml) ml.style.display = 'none';
   _pnPseudo = name;
+  isAdmin = false;
+  localStorage.setItem('pn_pseudo', name);
+  closeLogin();
   const chip = document.getElementById('mchip');
   if (chip) {
     chip.innerHTML = `${AVATARS[idx]||'👤'} ${name}`;
@@ -294,29 +311,40 @@ function loginAs(name, idx) {
     chip.style.display = 'inline-flex';
     chip.onclick = () => {};
   }
+  document.querySelectorAll('.adm-only').forEach(el => el.style.display = 'none');
+  startFirebaseSync();
   renderPronostics();
-  document.querySelector('.adm-only')?.style.setProperty('display', isAdmin ? '' : 'none');
+  toast(`Bienvenue ${AVATARS[idx]} ${name} !`, 'ok');
+  showPnInfoIfFirstTime();
 }
 
 function loginAsAdmin() {
   _loginPendingName = 'Admin';
   document.getElementById('login-step1').style.display = 'none';
   document.getElementById('login-step2').style.display = 'block';
-  document.getElementById('login-admin-name').textContent = 'Admin';
+  document.getElementById('login-admin-name').textContent = 'Connexion administrateur';
+  document.getElementById('pwd').value = '';
+  document.getElementById('perr2').style.display = 'none';
+  setTimeout(() => document.getElementById('pwd')?.focus(), 100);
 }
 
 function tryAdmin() {
-  const pwd = document.getElementById('admin-pwd').value;
+  const pwd = document.getElementById('pwd').value;
   if (pwd === ADMIN_PWD) {
     isAdmin = true;
-    const ml = document.getElementById('ml');
-    if (ml) ml.style.display = 'none';
+    _pnPseudo = 'Admin';
+    localStorage.setItem('pn_pseudo', 'Admin');
+    closeLogin();
     const mchip = document.getElementById('mchip');
     if (mchip) { mchip.innerHTML = '🔑 Admin'; mchip.classList.add('logged'); mchip.onclick = () => {}; }
     document.querySelectorAll('.adm-only').forEach(el => el.style.display = '');
     startFirebaseSync();
+    renderPronostics();
+    toast('Bienvenue admin 🔑', 'ok');
   } else {
-    document.getElementById('admin-err').style.display = 'block';
+    document.getElementById('perr2').style.display = 'block';
+    document.getElementById('pwd').value = '';
+    document.getElementById('pwd')?.focus();
   }
 }
 
@@ -326,32 +354,25 @@ function loginBack() {
 }
 
 function enterGuest() {
-  const p = document.getElementById('guest-pseudo').value.trim();
-  if (!p) return;
-  const ml = document.getElementById('ml');
-  if (ml) ml.style.display = 'none';
-  _pnPseudo = p;
-  const mchip = document.getElementById('mchip');
-  if (mchip) { mchip.innerHTML = `👤 ${p}`; mchip.classList.add('logged'); mchip.onclick = () => {}; }
-  setTimeout(renderPronostics, 200);
+  document.getElementById('ml').style.display = 'flex';
+  buildLoginPlayers();
 }
 
 function switchMode() {
-  const ml = document.getElementById('ml');
-  if (ml) {
-    ml.style.display = 'flex';
-    document.getElementById('login-step1').style.display = 'block';
-    document.getElementById('login-step2').style.display = 'none';
-  }
+  document.getElementById('login-step1').style.display = 'block';
+  document.getElementById('login-step2').style.display = 'none';
+  document.getElementById('ml').style.display = 'flex';
+  buildLoginPlayers();
 }
 
 function confirmPseudo() { enterGuest(); }
 
 function showPnInfoIfFirstTime() {
-  if (!localStorage.getItem('cdm26_pnseen')) {
-    document.getElementById('pn-info-modal').style.display = 'flex';
-    localStorage.setItem('cdm26_pnseen', '1');
-  }
+  try { if (localStorage.getItem('pn_info_8e_seen') === '1') return; localStorage.setItem('pn_info_8e_seen', '1'); } catch(e) {}
+  setTimeout(() => {
+    const el = document.getElementById('pn-info-modal');
+    if (el) el.style.display = 'flex';
+  }, 400);
 }
 function closePnInfo() { document.getElementById('pn-info-modal').style.display = 'none'; }
 
@@ -955,6 +976,7 @@ function renderGroupsBanner(targetId) {
 // START EXPERIENCE — called after loading
 // ═══════════════════════════════════════════════════
 export function startExperience(extraInit) {
+  buildLoginPlayers();
   if (extraInit && extraInit.initLenis) extraInit.initLenis();
   if (extraInit && extraInit.init3D) setTimeout(extraInit.init3D, 200);
   if (extraInit && extraInit.initCursor) setTimeout(extraInit.initCursor, 300);
