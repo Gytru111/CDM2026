@@ -2029,7 +2029,12 @@ function initNoise() {
 // Pause 3D render loop when tab hidden (performance mobile)
 document.addEventListener('visibilitychange', () => {
   _3DHidden = document.hidden;
-  if (!_3DHidden) { _last3DTime = Date.now() * 0.001; }
+  if (!_3DHidden) {
+    _last3DTime = Date.now() * 0.001;
+    if (renderer3D) renderer3D.setSize(window.innerWidth, window.innerHeight);
+    if (composer) composer.setSize(window.innerWidth, window.innerHeight);
+    if (bloomPass) bloomPass.resolution.set(window.innerWidth, window.innerHeight);
+  }
 });
 
 // ═══════════════════════════════════════════════════
@@ -2537,6 +2542,7 @@ function startExperience() {
       camera3D.updateProjectionMatrix();
     }
     if (composer) composer.setSize(window.innerWidth, window.innerHeight);
+    if (bloomPass) bloomPass.resolution.set(window.innerWidth, window.innerHeight);
   }, { passive:true });
 
   // Login observer: show 3D canvas when login modal hidden
