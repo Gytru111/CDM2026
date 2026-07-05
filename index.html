@@ -1738,7 +1738,7 @@ function init3D() {
   scene3D.add(starMesh);
 
   // Particles
-  const pCount = 350;
+  const pCount = 900;
   const pg = new THREE.BufferGeometry();
   const pp = new Float32Array(pCount*3);
   const pc = new Float32Array(pCount*3);
@@ -1754,7 +1754,7 @@ function init3D() {
   pg.setAttribute('color',new THREE.BufferAttribute(pc,3));
   pg.setAttribute('size',new THREE.BufferAttribute(ps,1));
   const pMat = new THREE.PointsMaterial({
-    size: 0.04, vertexColors: true, transparent: true, opacity: 0.7,
+    size: 0.065, vertexColors: true, transparent: true, opacity: 0.8,
     blending: THREE.AdditiveBlending, depthWrite: false
   });
   particleSystem = new THREE.Points(pg,pMat);
@@ -1768,7 +1768,7 @@ function init3D() {
     composer = new THREE.EffectComposer(renderer3D);
     const renderPass = new THREE.RenderPass(scene3D, camera3D);
     composer.addPass(renderPass);
-    bloomPass = new THREE.UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 0.4, 0.2, 0.1);
+    bloomPass = new THREE.UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 0.6, 0.3, 0.15);
     composer.addPass(bloomPass);
   }
 
@@ -1805,11 +1805,23 @@ function animate3D() {
   const sp = _scrollProgress;
   _orbitPhase += 0.003;
 
+  // Camera scroll & mouse motion
+  const _targetCamY = 1.2 - sp * 2.0;
+  const _targetCamZ = 4.8 + sp * 1.5;
+  const mx = (mouseX3D / window.innerWidth - 0.5) * 0.4;
+  const my = (mouseY3D / window.innerHeight - 0.5) * 0.2;
+  if (!_isDragging) {
+    camera3D.position.x += (mx - camera3D.position.x) * 0.02;
+    camera3D.position.y += (_targetCamY + my - camera3D.position.y) * 0.02;
+    camera3D.position.z += (_targetCamZ - camera3D.position.z) * 0.02;
+    camera3D.lookAt(0, 0, 0);
+  }
+
   if (ballGroup) {
     const speedMult = 0.2 + sp * 0.3;
     const autoRotY = time * speedMult + _orbitPhase;
-    const autoRotX = Math.sin(time * 0.1) * (0.03 + sp * 0.05);
-    ballGroup.rotation.y = autoRotY + _dragRotY;
+    const autoRotX = Math.sin(time * 0.1) * (0.03 + sp * 0.05) + my * 0.1;
+    ballGroup.rotation.y = autoRotY + _dragRotY + mx * 0.5;
     ballGroup.rotation.x = autoRotX + _dragRotX;
     const ball = ballGroup.children[0];
     if (ball) { ball.position.y = Math.sin(time * 0.6) * (0.06 + sp * 0.06); }
@@ -1885,6 +1897,19 @@ function animate3D() {
 }
 
 function setScrollProgress(p) { _targetScrollProgress = Math.max(0, Math.min(1, p)); }
+
+// Scroll → 3D progress
+let _scrollTicking = false;
+window.addEventListener('scroll', () => {
+  if (_scrollTicking) return;
+  _scrollTicking = true;
+  requestAnimationFrame(() => {
+    const docEl = document.documentElement;
+    const max = docEl.scrollHeight - window.innerHeight;
+    setScrollProgress(max > 0 ? window.scrollY / max : 0);
+    _scrollTicking = false;
+  });
+}, { passive: true });
 
 // ═══════════════════════════════════════════════════
 // LOADING SCREEN
