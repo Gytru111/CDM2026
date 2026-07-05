@@ -267,7 +267,6 @@ tr.live-row:hover{background:rgba(45,198,83,.09)}
 /* ══════════ HEADER ══════════ */
 .hdr{position:-webkit-sticky;position:sticky;top:0;z-index:200;
   background:rgba(7,12,22,.85);border-bottom:1px solid var(--g2);
-  -webkit-backdrop-filter:blur(24px) saturate(1.2);backdrop-filter:blur(24px) saturate(1.2);
   padding-top:var(--sat);perspective:800px}
 .hdr::after{content:'';position:absolute;bottom:-1px;left:-100%;width:300%;height:1px;
   background:linear-gradient(90deg,transparent 0%,var(--gold) 25%,var(--blu) 50%,var(--gold) 75%,transparent 100%);
@@ -297,7 +296,6 @@ tr.live-row:hover{background:rgba(45,198,83,.09)}
 /* ══════════ NAV ══════════ */
 .nav{position:-webkit-sticky;position:sticky;top:calc(64px + var(--sat));z-index:190;
   background:rgba(7,12,22,.85);border-bottom:1px solid rgba(255,183,3,.06);
-  -webkit-backdrop-filter:blur(24px) saturate(1.1);backdrop-filter:blur(24px) saturate(1.1);
   overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;
   perspective:600px}
 .nav::-webkit-scrollbar{display:none}
@@ -1604,7 +1602,7 @@ let ballGroup = null, particleSystem = null, is3DReady = false;
 let mouseX3D = window.innerWidth / 2, mouseY3D = window.innerHeight / 2;
 let composer = null, bloomPass = null;
 let _isDragging = false, _dragStartX = 0, _dragStartY = 0, _dragRotX = 0, _dragRotY = 0;
-let _3DHidden = false, _last3DTime = 0;
+let _last3DTime = 0;
 let _ballTexture = null, _cachedRings = null, _cachedFloatRefs = null;
 let _scrollProgress = 0, _targetScrollProgress = 0, _orbitPhase = 0;
 let _sceneData = null;
@@ -1848,8 +1846,6 @@ function init3D() {
 function animate3D() {
   requestAnimationFrame(animate3D);
   if (!is3DReady || !scene3D || !renderer3D) return;
-  if (_3DHidden) { return; }
-
   const time = Date.now() * 0.001;
   if (!_last3DTime) { _last3DTime = time; }
   const dt = Math.min(time - _last3DTime, 0.05);
@@ -2026,10 +2022,9 @@ function initNoise() {
   window.addEventListener('resize', onResize, { passive:true });
 }
 
-// Pause 3D render loop when tab hidden (performance mobile)
+// Reset 3D time when tab becomes visible
 document.addEventListener('visibilitychange', () => {
-  _3DHidden = document.hidden;
-  if (!_3DHidden) _last3DTime = Date.now() * 0.001;
+  if (!document.hidden) _last3DTime = Date.now() * 0.001;
 });
 
 // ═══════════════════════════════════════════════════
