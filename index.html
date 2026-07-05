@@ -9,6 +9,8 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#070c16">
 <meta name="format-detection" content="telephone=no">
+<link rel="manifest" href="./manifest.webmanifest">
+<meta name="theme-color" content="#070c16">
 <title>&#x26BD; CDM 2026 &mdash; Ligue des Copains</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -23,6 +25,10 @@
 
 /* ══════════ RESET & TOKENS ══════════ */
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none}
+/* Focus visible pour accessibilité clavier */
+:focus-visible{outline:2px solid var(--gold);outline-offset:2px;border-radius:4px}
+/* Respect préférences réduction de mouvement */
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
 :root{
   --bg:#0a0c0e;
   --c1:#121417;--c2:#181b1f;--c3:#202428;--c4:#2a2f34;--c5:#363c42;
@@ -91,6 +97,16 @@ body.light::before{
     linear-gradient(rgba(244,243,236,.55),rgba(244,243,236,.68)),
     url('https://images.unsplash.com/photo-1661632359980-9896d88b9b7b?auto=format&fit=crop&w=1600&q=70') center/cover no-repeat;
 }
+/* Mode clair — adaptations premium */
+body.light .hdr{background:rgba(244,243,236,.88);border-bottom-color:rgba(0,0,0,.08)}
+body.light .hdr::after{opacity:.25}
+body.light .hdr-emblem{filter:drop-shadow(0 0 6px rgba(180,83,9,.25))}
+body.light .nav{background:rgba(244,243,236,.88);border-bottom-color:rgba(0,0,0,.06)}
+body.light .nav-indicator{box-shadow:0 0 6px rgba(180,83,9,.15)}
+body.light .sec-title-g{text-shadow:0 0 16px rgba(180,83,9,.08),0 1px 2px rgba(0,0,0,.08)}
+body.light .lcard{box-shadow:0 8px 40px rgba(0,0,0,.12),0 0 60px rgba(180,83,9,.03)}
+body.light .lcard-icon{filter:drop-shadow(0 0 6px rgba(180,83,9,.15))}
+body.light .lcard::before{background:radial-gradient(circle at 30% 20%,rgba(180,83,9,.04),transparent 50%)}
 html{scroll-behavior:smooth;height:-webkit-fill-available;height:100dvh}
 body{background:var(--bg);color:var(--t1);
   font-family:-apple-system,'Inter','Roboto','Segoe UI',sans-serif;
@@ -1184,9 +1200,9 @@ img.reveal.revealed{opacity:1;transform:scale(1)}
     </div>
     <div class="hdr-divider"></div>
     <div class="hdr-right">
-      <div id="lchip" class="chip chip-live"><span class="ldot"></span><span id="lchip-txt">Auto</span></div>
-      <button id="theme-btn" class="chip" onclick="toggleTheme()" style="font-size:.8rem;padding:.3rem .6rem">🌙</button>
-      <button id="mchip" class="chip chip-gst" onclick="switchMode()">👁 Invité</button>
+      <div id="lchip" class="chip chip-live" role="status" aria-label="Statut live"><span class="ldot"></span><span id="lchip-txt">Auto</span></div>
+      <button id="theme-btn" class="chip" onclick="toggleTheme()" style="font-size:.8rem;padding:.3rem .6rem" aria-label="Changer le thème">🌙</button>
+      <button id="mchip" class="chip chip-gst" onclick="switchMode()" aria-label="Changer de mode">👁 Invité</button>
     </div>
   </div>
 </header>
@@ -1194,13 +1210,13 @@ img.reveal.revealed{opacity:1;transform:scale(1)}
 <!-- NAV -->
 <nav class="nav">
   <div class="nav-inner">
-    <div class="ntab on" id="nt-cl" onclick="showTab('cl')"><span class="ntab-ico">🏅</span>Classement</div>
-    <div class="ntab" id="nt-ma" onclick="showTab('ma')"><span class="ntab-ico">⚽</span>Matchs</div>
-    <div class="ntab" id="nt-tb" onclick="showTab('tb')"><span class="ntab-ico">📊</span>Tableau</div>
-    <div class="ntab" id="nt-gr" onclick="showTab('gr')"><span class="ntab-ico">🌍</span>Groupes</div>
-    <div class="ntab" id="nt-pn" onclick="showTab('pn')"><span class="ntab-ico">🎯</span>Pronostics</div>
-    <div class="ntab" id="nt-bk" onclick="showTab('bk')"><span class="ntab-ico">🏆</span>Bracket</div>
-    <div class="ntab adm-only" id="nt-lg" onclick="showTab('lg')" style="display:none"><span class="ntab-ico">🔍</span>Logs</div>
+    <div class="ntab on" id="nt-cl" onclick="showTab('cl')" role="tab" aria-selected="true" tabindex="0"><span class="ntab-ico" aria-hidden="true">🏅</span><span>Classement</span></div>
+    <div class="ntab" id="nt-ma" onclick="showTab('ma')" role="tab" aria-selected="false" tabindex="0"><span class="ntab-ico" aria-hidden="true">⚽</span><span>Matchs</span></div>
+    <div class="ntab" id="nt-tb" onclick="showTab('tb')" role="tab" aria-selected="false" tabindex="0"><span class="ntab-ico" aria-hidden="true">📊</span><span>Tableau</span></div>
+    <div class="ntab" id="nt-gr" onclick="showTab('gr')" role="tab" aria-selected="false" tabindex="0"><span class="ntab-ico" aria-hidden="true">🌍</span><span>Groupes</span></div>
+    <div class="ntab" id="nt-pn" onclick="showTab('pn')" role="tab" aria-selected="false" tabindex="0"><span class="ntab-ico" aria-hidden="true">🎯</span><span>Pronostics</span></div>
+    <div class="ntab" id="nt-bk" onclick="showTab('bk')" role="tab" aria-selected="false" tabindex="0"><span class="ntab-ico" aria-hidden="true">🏆</span><span>Bracket</span></div>
+    <div class="ntab adm-only" id="nt-lg" onclick="showTab('lg')" style="display:none" role="tab" aria-selected="false" tabindex="0"><span class="ntab-ico" aria-hidden="true">🔍</span><span>Logs</span></div>
     <span class="nav-indicator" id="nav-indicator"></span>
   </div>
 </nav>
@@ -1622,6 +1638,21 @@ function init3D() {
   const canvas = document.getElementById('three-canvas');
   if (!canvas) return;
 
+  // Accessibilité : réduire/stopper la 3D si l'utilisateur préfère peu de mouvement
+  const reduceMotion=window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+  const canvasEl=canvas;
+  if(reduceMotion){
+    canvasEl.style.display='none';
+    return;
+  }
+
+  // Ajustements responsive pour mobile
+  const isMobile=window.innerWidth<768;
+  const pCount=isMobile?400:900;
+  const pSize=isMobile?0.04:0.065;
+  const camFov=isMobile?55:45;
+  const camZ=isMobile?5.5:4.8;
+
   renderer3D = new THREE.WebGLRenderer({ alpha: true, antialias: true, powerPreference: 'high-performance' });
   renderer3D.setSize(window.innerWidth, window.innerHeight);
   renderer3D.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
@@ -1630,8 +1661,8 @@ function init3D() {
   canvas.appendChild(renderer3D.domElement);
 
   scene3D = new THREE.Scene();
-  camera3D = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 50);
-  camera3D.position.set(0, 1.2, 4.8);
+  camera3D = new THREE.PerspectiveCamera(camFov, window.innerWidth / window.innerHeight, 0.1, 50);
+  camera3D.position.set(0, 1.2, camZ);
   camera3D.lookAt(0, 0, 0);
 
   // Procedural env map
@@ -1762,7 +1793,6 @@ function init3D() {
   scene3D.add(starMesh);
 
   // Particles
-  const pCount = 900;
   const pg = new THREE.BufferGeometry();
   const pp = new Float32Array(pCount*3);
   const pc = new Float32Array(pCount*3);
@@ -1778,7 +1808,7 @@ function init3D() {
   pg.setAttribute('color',new THREE.BufferAttribute(pc,3));
   pg.setAttribute('size',new THREE.BufferAttribute(ps,1));
   const pMat = new THREE.PointsMaterial({
-    size: 0.065, vertexColors: true, transparent: true, opacity: 0.8,
+    size: pSize, vertexColors: true, transparent: true, opacity: 0.8,
     blending: THREE.AdditiveBlending, depthWrite: false
   });
   particleSystem = new THREE.Points(pg,pMat);
@@ -2301,11 +2331,19 @@ function wrapShowTab() {
     if (typeof gsap !== 'undefined') {
       const tl = gsap.timeline({ defaults: { ease: 'power3.inOut' } });
       let hasActive = false;
+      // Curtain overlay pour transition cinématique
+      const curtain = document.createElement('div');
+      curtain.style.cssText='position:fixed;inset:0;z-index:999;pointer-events:none;display:flex';
+      curtain.innerHTML='<div class="curtain-l" style="flex:1;background:var(--bg2);transform:scaleX(1);transform-origin:right center"></div><div class="curtain-r" style="flex:1;background:var(--bg2);transform:scaleX(1);transform-origin:left center"></div>';
+      document.body.appendChild(curtain);
+      const cl=curtain.querySelector('.curtain-l'), cr=curtain.querySelector('.curtain-r');
+      gsap.set([cl,cr],{scaleX:1});
       document.querySelectorAll('.page').forEach(p => {
         if (p.classList.contains('on')) {
           hasActive = true;
-          const dir = { x: (Math.random()-0.5)*30, y: -12-Math.random()*8, rotation: (Math.random()-0.5)*6, scale:0.94, opacity:0, duration:0.25, ease:'power2.in' };
-          tl.to(p, dir).call(() => {
+          const dir = { x: (Math.random()-0.5)*30, y: -12-Math.random()*8, rotation: (Math.random()-0.5)*6, scale:0.94, opacity:0, duration:0.2, ease:'power2.in' };
+          tl.to(p, dir).to([cl,cr],{scaleX:0,duration:.5,ease:'power4.inOut'},'<').call(() => {
+            curtain.remove();
             const np = document.getElementById('pg-'+tab);
             if (np) { np.style.setProperty('opacity','0','important'); }
             orig(tab);
@@ -2320,7 +2358,7 @@ function wrapShowTab() {
           }, null, '>-0.08');
         }
       });
-      if (!hasActive) { orig(tab); setTimeout(initSectionAnims, 200); }
+      if (!hasActive) { curtain.remove(); orig(tab); setTimeout(initSectionAnims, 200); }
     } else orig(tab);
   };
 }
@@ -2666,6 +2704,7 @@ async function startFirebaseSync(){
 
     // Écoute en temps réel — mise à jour auto pour tous
     _fbRef.on('value',snap=>{
+      _lastFbRS=Date.now();
       if(!snap.exists())return;
       const d=snap.val();if(!d)return;
       const m81Local=RS[81]; // sauvegarder la valeur locale avant écrasement
@@ -3430,7 +3469,11 @@ async function fetchWC26(){
 // ═══════════════════════════════════════════════════
 
 
+let _lastFbRS=0; // timestamp du dernier RS reçu via Firebase
+
 async function fetchAll(){
+  // Si Firebase vient de nous envoyer des scores (moins de 25s), on saute le fetch HTTP
+  if(_fbReady&&_lastFbRS>0&&Date.now()-_lastFbRS<25000) return;
   try{
     const n=await fetchESPN();
     if(n===-1){
@@ -3711,10 +3754,12 @@ function moveNavIndicator(){
 window.addEventListener('resize',moveNavIndicator);
 
 function showTab(id){
-  document.querySelectorAll('.ntab').forEach(t=>t.classList.remove('on'));
+  document.querySelectorAll('.ntab').forEach(t=>{t.classList.remove('on');t.setAttribute('aria-selected','false');});
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
-  document.getElementById('nt-'+id).classList.add('on');
-  document.getElementById('pg-'+id).classList.add('on');
+  const tab=document.getElementById('nt-'+id);
+  if(tab){tab.classList.add('on');tab.setAttribute('aria-selected','true');tab.focus();}
+  const pg=document.getElementById('pg-'+id);
+  if(pg) pg.classList.add('on');
   moveNavIndicator();
   renderPage(id);
 }
@@ -3984,6 +4029,17 @@ function renderClassement(phase){
     const pillMap={'all':0,'groups':1,'ko':2};
     const pills=document.querySelectorAll('#pg-cl .toolbar .pill');
     if(pills[pillMap[phase]]!==undefined) pills[pillMap[phase]].classList.add('on');
+  }
+  // Skeleton loading si pas encore de données
+  const hasData=Object.keys(RS).length>0;
+  if(!hasData){
+    document.getElementById('pg-stats').innerHTML=Array.from({length:4},(_,i)=>`
+      <div class="mini-stat"><div class="skel" style="height:1.85rem;width:40%;margin-bottom:.3rem"></div><div class="skel" style="height:.6rem;width:60%"></div></div>`).join('');
+    document.getElementById('pg-podium').innerHTML=Array.from({length:3},()=>`
+      <div class="pod pod-2" style="padding:1.25rem"><div class="skel" style="width:2.8rem;height:2.8rem;border-radius:50%;margin:0 auto .55rem"></div><div class="skel" style="height:.9rem;width:50%;margin:0 auto"></div><div class="skel" style="height:2.4rem;width:35%;margin:.3rem auto 0"></div></div>`).join('');
+    document.getElementById('pg-lb').innerHTML=Array.from({length:8},()=>`
+      <div class="lb-row"><div class="skel" style="width:20px;height:.9rem;border-radius:4px"></div><div class="skel" style="width:36px;height:36px;border-radius:50%"></div><div class="skel" style="flex:1;height:.88rem;border-radius:4px"></div></div>`).join('');
+    return;
   }
   const rank=buildRanking(_clPhase);
   const idsForPhase=_clPhase==='groups'?MATCHES.map(m=>m[0])
@@ -4948,6 +5004,13 @@ function renderTableau(){
 // RENDER — GROUPES (FLASHSCORE)
 // ═══════════════════════════════════════════════════
 function renderGroupes(){
+  if(Object.keys(RS).length===0){
+    document.getElementById('fs-kpis').innerHTML=Array.from({length:4},()=>`<div class="fs-kpi"><div class="skel" style="height:1.6rem;width:20px;margin:0 auto"></div></div>`).join('');
+    document.getElementById('grp-tabs').innerHTML='<div class="skel" style="height:2rem;width:200px;border-radius:8px;margin:0 auto"></div>';
+    document.getElementById('grp-table').innerHTML=Array.from({length:5},()=>`<div class="skel" style="height:44px;width:100%;margin-bottom:2px;border-radius:4px"></div>`).join('');
+    document.getElementById('tourn-stats').innerHTML='<div class="skel" style="height:100px;width:100%;border-radius:12px"></div>';
+    return;
+  }
   const stats=computeTournStats();
   document.getElementById('fs-kpis').innerHTML=`
     <div class="fs-kpi"><div class="fs-kpi-v">${stats.goals}</div><div class="fs-kpi-l">Buts</div></div>
@@ -6136,6 +6199,9 @@ function ALL_KO_SCHEDULE_FLAT(){
     return [id, ks.date, ks.time, bk.t1||'', bk.t2||''];
   }).filter(Boolean);
 }
+
+// PWA — enregistrement du service worker
+if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js',{scope:'./'}).catch(()=>{});
 
 </script>
 
