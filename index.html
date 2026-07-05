@@ -921,7 +921,7 @@ table.tbl tbody tr.played td{background:rgba(45,198,83,.02)}
 @keyframes floatY{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
 .anim-shimmer-bg{background:linear-gradient(90deg,transparent,rgba(255,255,255,.03),transparent);background-size:200% 100%;animation:shimmerSlide 4s ease-in-out infinite}
 @keyframes shimmerSlide{0%{background-position:-200% 0}100%{background-position:200% 0}}
-#three-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:0;transition:opacity 1.5s ease}
+#three-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:0}
 #three-canvas.visible{opacity:1}
 
 /* ═══ FLOATING GEOMETRIC SHAPES ═══ */
@@ -1848,7 +1848,7 @@ function init3D() {
 function animate3D() {
   requestAnimationFrame(animate3D);
   if (!is3DReady || !scene3D || !renderer3D) return;
-  if (_3DHidden) { if (composer) composer.render(); else renderer3D.render(scene3D, camera3D); return; }
+  if (_3DHidden) { return; }
 
   const time = Date.now() * 0.001;
   if (!_last3DTime) { _last3DTime = time; }
@@ -2029,12 +2029,7 @@ function initNoise() {
 // Pause 3D render loop when tab hidden (performance mobile)
 document.addEventListener('visibilitychange', () => {
   _3DHidden = document.hidden;
-  if (!_3DHidden) {
-    _last3DTime = Date.now() * 0.001;
-    if (renderer3D) renderer3D.setSize(window.innerWidth, window.innerHeight);
-    if (composer) composer.setSize(window.innerWidth, window.innerHeight);
-    if (bloomPass) bloomPass.resolution.set(window.innerWidth, window.innerHeight);
-  }
+  if (!_3DHidden) _last3DTime = Date.now() * 0.001;
 });
 
 // ═══════════════════════════════════════════════════
