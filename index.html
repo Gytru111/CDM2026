@@ -16,7 +16,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.18/dist/lenis.min.js"></script>
 <style>
 
 /* ══════════ RESET & TOKENS ══════════ */
@@ -894,14 +893,6 @@ table.tbl tbody tr.played td{background:rgba(45,198,83,.02)}
 .bg-shape:nth-child(5){width:180px;height:180px;background:radial-gradient(circle,var(--pur),transparent);bottom:10%;right:15%;animation-delay:-7s;animation-duration:28s}
 @keyframes shapeFloat{0%,100%{transform:translate(0,0) scale(1)}25%{transform:translate(30px,-20px) scale(1.1)}50%{transform:translate(-20px,30px) scale(.95)}75%{transform:translate(15px,15px) scale(1.05)}}
 
-/* ═══ CUSTOM CURSOR ═══ */
-#cursor-ring{position:fixed;width:32px;height:32px;border:2px solid rgba(255,183,3,.6);border-radius:50%;pointer-events:none;z-index:99999;transform:translate(-50%,-50%);transition:width .3s ease,height .3s ease,background .3s ease,border-color .3s ease;mix-blend-mode:difference;will-change:transform}
-#cursor-ring.hover{width:56px;height:56px;background:rgba(255,183,3,.15);border-color:var(--gold);mix-blend-mode:normal}
-#cursor-ring.click{width:24px;height:24px;background:var(--gold);border-color:var(--gold)}
-#cursor-dot{position:fixed;width:4px;height:4px;background:var(--gold);border-radius:50%;pointer-events:none;z-index:100000;transform:translate(-50%,-50%);transition:opacity .3s ease;will-change:transform}
-html.no-cursor{cursor:none!important}
-.no-cursor a,.no-cursor button,.no-cursor .chip,.no-cursor .ntab,.no-cursor .pill,.no-cursor .btn,.no-cursor .lb-row,.no-cursor .pod,.no-cursor .gb-card,.no-cursor .ts-card,.no-cursor .tbl tbody tr{cursor:none!important}
-
 /* ═══ LOADING SCREEN ═══ */
 #loader{position:fixed;inset:0;z-index:99998;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--bg);overflow:hidden}
 #loader::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 40%,rgba(255,183,3,.08),transparent 70%),radial-gradient(ellipse 60% 50% at 50% 60%,rgba(0,180,216,.06),transparent 70%);pointer-events:none}
@@ -1054,10 +1045,6 @@ img.reveal.revealed{opacity:1;transform:scale(1)}
     <div class="loader-count" id="loader-count">0%</div>
   </div>
 </div>
-
-<!-- CUSTOM CURSOR -->
-<div id="cursor-ring"></div>
-<div id="cursor-dot"></div>
 
 <!-- NOISE OVERLAY -->
 <canvas id="noise-canvas"></canvas>
@@ -1574,7 +1561,6 @@ let ballGroup = null, particleSystem = null, is3DReady = false;
 let mouseX3D = window.innerWidth / 2, mouseY3D = window.innerHeight / 2;
 let _ballTexture = null, _cachedRings = null, _cachedFloatRefs = null;
 let _scrollProgress = 0, _targetScrollProgress = 0, _orbitPhase = 0;
-let _lenis = null;
 let _sceneData = null;
 
 function buildBallTexture() {
@@ -1898,56 +1884,6 @@ function initLoading(startCb) {
 }
 
 // ═══════════════════════════════════════════════════
-// CUSTOM CURSOR
-// ═══════════════════════════════════════════════════
-function initCursor() {
-  const ring = document.getElementById('cursor-ring');
-  const dot = document.getElementById('cursor-dot');
-  if ('ontouchstart' in window) {
-    if (ring) ring.style.display = 'none';
-    if (dot) dot.style.display = 'none';
-    return;
-  }
-  document.documentElement.classList.add('no-cursor');
-  let mouseX = window.innerWidth/2, mouseY = window.innerHeight/2;
-  let rx = mouseX, ry = mouseY;
-  document.addEventListener('mousemove', e => {
-    mouseX = e.clientX; mouseY = e.clientY;
-    if (dot) { dot.style.left = mouseX+'px'; dot.style.top = mouseY+'px'; }
-  });
-  function lerp(a,b,t) { return a+(b-a)*t; }
-  function animCursor() {
-    rx = lerp(rx, mouseX, 0.1); ry = lerp(ry, mouseY, 0.1);
-    if (ring) { ring.style.left = rx+'px'; ring.style.top = ry+'px'; }
-    requestAnimationFrame(animCursor);
-  }
-  animCursor();
-  const hoverSel = 'a, button, .chip, .ntab, .pill, .btn, .lb-row, .pod, .gb-card, .ts-card, .tbl tbody tr, .sec-title, .grp-tab, .gm-s, .mini-stat, .pn-card, .magnetic-el';
-  document.addEventListener('mouseover', e => {
-    const t = e.target.closest(hoverSel);
-    if (ring) {
-      ring.style.transform = t ? 'scale(1.6)' : 'scale(1)';
-      ring.style.borderColor = t ? 'var(--gold)' : 'var(--g3)';
-      ring.style.background = t ? 'rgba(255,183,3,0.1)' : 'transparent';
-      const rect = t?.getBoundingClientRect();
-      if (rect) {
-        const w = Math.max(rect.width, rect.height) * 0.4 + 24;
-        ring.style.width = w + 'px';
-        ring.style.height = w + 'px';
-      } else {
-        ring.style.width = '32px';
-        ring.style.height = '32px';
-      }
-    }
-  });
-  document.addEventListener('click', () => {
-    if (ring) { ring.style.transform='scale(0.6)'; ring.style.transition='transform 0.08s ease'; setTimeout(()=>{ ring.style.transform='scale(1)'; ring.style.transition='transform 0.3s ease'; },80); }
-  });
-  document.addEventListener('mouseleave', () => { if (ring) { ring.style.opacity = '0'; } });
-  document.addEventListener('mouseenter', () => { if (ring) { ring.style.opacity = '1'; } });
-}
-
-// ═══════════════════════════════════════════════════
 // NOISE OVERLAY
 // ═══════════════════════════════════════════════════
 function initNoise() {
@@ -2002,14 +1938,12 @@ function initMicroInteractions() {
   const hdr = document.querySelector('.hdr');
   if (hdr) {
     function updateHdr() {
-      const scrollY = _lenis ? (_lenis.animatedScroll || _lenis.targetScroll || 0) : window.scrollY;
-      hdr.classList.toggle('scrolled', scrollY > 60);
+      hdr.classList.toggle('scrolled', window.scrollY > 60);
     }
     let ticking = false;
     window.addEventListener('scroll', () => {
       if (!ticking) { requestAnimationFrame(() => { updateHdr(); ticking = false; }); ticking = true; }
     }, { passive:true });
-    if (_lenis) _lenis.on('scroll', updateHdr);
   }
 
   // Nav indicator smooth follow
@@ -2192,14 +2126,11 @@ function initScrollTop() {
   const btn = document.getElementById('scroll-top');
   if (!btn) return;
   function updateBtn() {
-    const scrollY = _lenis ? (_lenis.animatedScroll || _lenis.targetScroll || 0) : window.scrollY;
-    btn.classList.toggle('show', scrollY > 400);
+    btn.classList.toggle('show', window.scrollY > 400);
   }
   window.addEventListener('scroll', updateBtn, { passive:true });
-  if (_lenis) _lenis.on('scroll', updateBtn);
   btn.addEventListener('click', () => {
-    if (_lenis) _lenis.scrollTo(0, { duration:1.2, easing:[0.16,1,0.3,1] });
-    else window.scrollTo({ top:0, behavior:'smooth' });
+    window.scrollTo({ top:0, behavior:'smooth' });
   });
 }
 
@@ -2250,94 +2181,6 @@ function burstConfetti(originX, originY, count) {
     }
   }
   setTimeout(() => container.remove(), 2500);
-}
-
-// ═══════════════════════════════════════════════════
-// LENIS SMOOTH SCROLL + STORYTELLING
-// ═══════════════════════════════════════════════════
-const _lookTarget = new THREE.Vector3();
-const _caColor = new THREE.Color();
-const _cbColor = new THREE.Color();
-const _posA = new THREE.Vector3();
-const _posB = new THREE.Vector3();
-const _tgtA = new THREE.Vector3();
-const _tgtB = new THREE.Vector3();
-
-const storytelling = {
-  chapters: [
-    { label:'cl', pos:[-1.5,0.8,5.2], tgt:[0,0,0], amb:0x303060, main:0xffd8a0, ballSpd:0.18, orbSpd:0.25, orbR:2.2 },
-    { label:'ma', pos:[6.0,1.5,2.5], tgt:[0,-0.2,0], amb:0x203050, main:0xffccaa, ballSpd:0.28, orbSpd:0.35, orbR:3.0 },
-    { label:'tb', pos:[-5.5,2.8,3.0], tgt:[0,0.3,0], amb:0x402050, main:0xddaaff, ballSpd:0.12, orbSpd:0.20, orbR:2.5 },
-    { label:'gr', pos:[0.5,4.0,1.8], tgt:[0,-0.3,0], amb:0x203020, main:0xaaffaa, ballSpd:0.35, orbSpd:0.45, orbR:3.5 },
-    { label:'bk', pos:[7.0,-0.8,3.0], tgt:[0,0.2,0], amb:0x202040, main:0xaaccff, ballSpd:0.20, orbSpd:0.25, orbR:2.8 },
-    { label:'pn', pos:[-6.5,1.8,4.0], tgt:[0,-0.2,0], amb:0x402020, main:0xffaaaa, ballSpd:0.22, orbSpd:0.30, orbR:3.2 }
-  ],
-  current: 0,
-  progress: 0,
-  init() {
-    const ch = this.chapters[0];
-    if (camera3D && ch) {
-      camera3D.position.set(ch.pos[0], ch.pos[1], ch.pos[2]);
-      _lookTarget.set(ch.tgt[0], ch.tgt[1], ch.tgt[2]);
-      camera3D.lookAt(_lookTarget);
-    }
-  },
-  update(p) {
-    this.progress = p;
-    setScrollProgress(p);
-    const total = this.chapters.length - 1;
-    const raw = p * total;
-    const idx = Math.min(Math.floor(raw), total - 1);
-    const frac = raw - idx;
-    const smoothstep = t => t*t*(3-2*t);
-    const sf = smoothstep(frac);
-    const ca = this.chapters[idx];
-    const cb = this.chapters[Math.min(idx+1,total)];
-    if (!ca || !cb || !camera3D) return;
-
-    _posA.set(ca.pos[0], ca.pos[1], ca.pos[2]);
-    _posB.set(cb.pos[0], cb.pos[1], cb.pos[2]);
-    _tgtA.set(ca.tgt[0], ca.tgt[1], ca.tgt[2]);
-    _tgtB.set(cb.tgt[0], cb.tgt[1], cb.tgt[2]);
-
-    camera3D.position.lerpVectors(_posA, _posB, sf);
-    _lookTarget.lerpVectors(_tgtA, _tgtB, sf);
-    camera3D.lookAt(_lookTarget);
-
-    if (scene3D) {
-      const ambient = scene3D.children.find(c => c.isLight && c.type === 'AmbientLight');
-      if (ambient) {
-        _caColor.setHex(ca.amb);
-        _cbColor.setHex(cb.amb);
-        ambient.color.lerpColors(_caColor, _cbColor, sf);
-      }
-      const mainLight = scene3D.children.find(c => c.isLight && c.type === 'DirectionalLight');
-      if (mainLight) {
-        _caColor.setHex(ca.main);
-        _cbColor.setHex(cb.main);
-        mainLight.color.lerpColors(_caColor, _cbColor, sf);
-      }
-    }
-  }
-};
-
-// ═══════════════════════════════════════════════════
-// LENIS SMOOTH SCROLL
-// ═══════════════════════════════════════════════════
-function initLenis() {
-  if (typeof Lenis === 'undefined') return;
-  _lenis = new Lenis({ duration: 1.4, easing: t => Math.min(1,1-Math.pow(1-t,3)), orientation: 'vertical', gestureOrientation: 'vertical', wheelMultiplier: 1, smoothWheel: true });
-
-  _lenis.on('scroll', e => {
-    storytelling.update(e.progress);
-  });
-
-  _lenis.connect();
-  if (typeof gsap !== 'undefined') {
-    gsap.ticker.add(time => { _lenis.raf(time * 1000); });
-    gsap.ticker.lagSmoothing(0);
-  }
-  storytelling.init();
 }
 
 // ═══════════════════════════════════════════════════
@@ -2445,11 +2288,6 @@ function initSectionAnims() {
 function initScrollTriggers() {
   if (typeof ScrollTrigger === 'undefined' || typeof gsap === 'undefined') return;
   gsap.registerPlugin(ScrollTrigger);
-  if (_lenis) {
-    _lenis.on('scroll', ScrollTrigger.update);
-    gsap.ticker.add(time => { ScrollTrigger.update(); });
-    gsap.ticker.lagSmoothing(0);
-  }
   document.querySelectorAll('.sec-title-g, .sec-title, .fs-hero-title').forEach(el => {
     const wrap = el.querySelector('.txt-reveal-wrap') || (()=>{ const w=document.createElement('div'); w.className='txt-reveal-wrap'; w.innerHTML=el.innerHTML; el.innerHTML=''; el.appendChild(w); return w; })();
     gsap.fromTo(wrap, { y:50, rotateX:-25, opacity:0 }, { y:0, rotateX:0, opacity:1, duration:0.9, ease:'power4.out', scrollTrigger:{ trigger:el.closest('.sec') || el, start:'top 85%', toggleActions:'play none none none' }});
@@ -2542,7 +2380,6 @@ function init3DTilt() {
 // ═══════════════════════════════════════════════════
 function startExperience() {
   setTimeout(init3D, 200);
-  setTimeout(initCursor, 300);
   setTimeout(initNoise, 400);
   setTimeout(initSectionAnims, 600);
   setTimeout(initMicroInteractions, 800);
@@ -2589,9 +2426,6 @@ function startExperience() {
 function boot() {
   // Wire GSAP page transitions
   wrapShowTab();
-
-  // Init Lenis
-  setTimeout(initLenis, 100);
 
   // Loading screen then start experience
   if (typeof gsap !== 'undefined') {
