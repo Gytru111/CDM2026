@@ -445,14 +445,6 @@ async function main() {
     console.warn('⚠️  Lecture Firebase échouée:', e.message);
   }
 
-  // Forcer les résultats des matchs KO connus (penalties, etc.)
-  // M74 Allemagne-Paraguay → Paraguay (t2) gagne TAB
-  currentRS[74] = [1, 1, null, null, 't2'];
-  // M75 Pays-Bas-Maroc → Maroc (t2) gagne TAB
-  currentRS[75] = [1, 1, null, null, 't2'];
-  // M88 Australie-Égypte → Égypte (t2) gagne TAB
-  currentRS[88] = [1, 1, null, null, 't2'];
-
   // Construire les matchs KO à partir des résultats de groupes connus
   const koResult = buildKOMatches(currentRS);
   const koArr = koResult.arr;
@@ -516,6 +508,17 @@ async function main() {
   // Recalculer les matchs KO maintenant que newScores peut avoir des résultats
   // R32 supplémentaires — utile pour la prochaine exécution (mais on le
   // stocke aussi dans Firebase pour le client)
+
+  // ─── CORRECTIONS FORCÉES DES SCORES R32 (écrase toute donnée Firebase/ESPN erronée) ──
+  // Matchs terminés aux tirs au but ([1,1,...,'t2'] = t2 qualifié TAB)
+  newScores[74] = [1, 1, null, null, 't2']; // Allemagne-Paraguay → Paraguay TAB
+  newScores[75] = [1, 1, null, null, 't2']; // Pays-Bas-Maroc → Maroc TAB
+  newScores[88] = [1, 1, null, null, 't2']; // Australie-Égypte → Égypte TAB
+  // Matchs terminés dans le temps réglementaire
+  newScores[76] = [2, 1]; // Brésil-Japon → Brésil
+  newScores[81] = [2, 0]; // USA-Bosnie → USA
+  newScores[82] = [3, 2]; // Belgique-Sénégal → Belgique
+
   const updatedKoResult = buildKOMatches(newScores);
   const newKoTeams = {};
   Object.entries(updatedKoResult.map).forEach(([id, val]) => {
