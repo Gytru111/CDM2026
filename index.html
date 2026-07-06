@@ -2,6 +2,10 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<script>!function(){if(location.search.indexOf('v=')<0)location.replace(location.href.split('?')[0]+'?v='+Date.now()+location.hash)}()</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -1520,7 +1524,14 @@ async function startFirebaseSync(){
       const fbData=snapRS.val();
       // Convertir les clés string en number pour compatibilité
       const converted={};
-      Object.entries(fbData).forEach(([k,v])=>{converted[+k]=v;});
+      Object.entries(fbData).forEach(([k,v])=>{
+        if(+k===74||+k===75||+k===88) return; // exclus de la sync Firebase (TAB)
+        converted[+k]=v;
+      });
+      converted[74]=[1,1,null,null,'t2']; // Paraguay TAB
+      converted[75]=[1,1,null,null,'t2']; // Maroc TAB
+      converted[86]=[3,2];                // Argentine 3-2 Cap-Vert AET
+      converted[88]=[1,1,null,null,'t2']; // Égypte TAB
       RS=converted;
       try{localStorage.setItem('cdm26_rs',JSON.stringify(RS));}catch(e){}
     }
@@ -1562,7 +1573,14 @@ async function startFirebaseSync(){
       if(!snap.exists())return;
       const d=snap.val();if(!d)return;
       const converted={};
-      Object.entries(d).forEach(([k,v])=>{converted[+k]=v;});
+      Object.entries(d).forEach(([k,v])=>{
+        if(+k===74||+k===75||+k===88) return; // exclus de la sync Firebase (TAB)
+        converted[+k]=v;
+      });
+      converted[74]=[1,1,null,null,'t2']; // Paraguay TAB
+      converted[75]=[1,1,null,null,'t2']; // Maroc TAB
+      converted[86]=[3,2];                // Argentine 3-2 Cap-Vert AET
+      converted[88]=[1,1,null,null,'t2']; // Égypte TAB
       RS=converted;
       try{localStorage.setItem('cdm26_rs',JSON.stringify(RS));}catch(e){}
       renderAll();
@@ -1627,6 +1645,24 @@ async function startFirebaseSync(){
 }
 
 let RS=loadRS();
+// Scores R32 forcés — exclus de toute sync Firebase pour garantir l'exactitude
+RS[73]=[0,1];                // Afrique du Sud 0-1 Canada → Canada
+RS[74]=[1,1,null,null,'t2']; // Allemagne 1-1 Paraguay → Paraguay TAB
+RS[75]=[1,1,null,null,'t2']; // Pays-Bas 1-1 Maroc → Maroc TAB
+RS[76]=[2,1];                // Brésil 2-1 Japon → Brésil
+RS[77]=[3,0];                // France 3-0 Suède → France
+RS[78]=[1,2];                // Côte d'Ivoire 1-2 Norvège → Norvège
+RS[79]=[2,0];                // Mexique 2-0 Équateur → Mexique
+RS[80]=[2,1];                // Angleterre 2-1 RD Congo → Angleterre
+if(!RS[81]) RS[81]=[null,null];
+RS[81][4]='t1';              // USA 2-0 Bosnie → USA
+RS[82]=[3,2];                // Belgique 3-2 Sénégal → Belgique
+RS[83]=[2,1];                // Portugal 2-1 Croatie → Portugal
+RS[84]=[3,0];                // Espagne 3-0 Autriche → Espagne
+RS[85]=[2,0];                // Suisse 2-0 Algérie → Suisse
+RS[86]=[3,2];                // Argentine 3-2 Cap-Vert AET → Argentine
+RS[87]=[1,0];                // Colombie 1-0 Ghana → Colombie
+RS[88]=[1,1,null,null,'t2']; // Australie 1-1 Égypte → Égypte TAB
 let ME=loadME();
 let AE=loadAE();
 
