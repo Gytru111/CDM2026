@@ -2775,6 +2775,21 @@ renderRecapWidget();
 // directe (M73 et suivants) avant qu'un utilisateur n'ouvre l'onglet Bracket.
 try{ renderBracket(); }catch(e){ console.warn('[CDM26] init bracket cache:',e); }
 buildLoginPlayers();
+// Auto-login si le pseudo est déjà sauvegardé (connexion persistante entre les visites)
+(function(){
+  const saved=localStorage.getItem('pn_pseudo');
+  if(saved && saved!=='Admin' && PLAYERS.includes(saved)){
+    const idx=PLAYERS.indexOf(saved);
+    _pnPseudo=saved;
+    isAdmin=false;
+    closeLogin();
+    applyMode();
+    applyTheme();
+    startFirebaseSync();
+    _pnLaunch();
+    initReactions();
+  }
+})();
 setTimeout(moveNavIndicator,0);
 window.addEventListener('load',moveNavIndicator);
 
@@ -4532,7 +4547,10 @@ function confirmPseudo(){
   // S'assurer que Firebase est initialisé puis attacher le listener pronostics
   // (sinon les pronos ne se synchronisent qu'en local, jamais vers les autres
   // vues comme Matchs/Tableau ni vers les autres appareils)
-  initFirebase().then(pnInit).catch(()=>renderPn());
+  initFirebase().then(()=>{
+    startFirebaseSync();
+    pnInit();
+  }).catch(()=>renderPn());
   showPnInfoIfFirstTime();
 }
 
