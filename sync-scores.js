@@ -46,35 +46,35 @@ const ANNEX_C={"EFGHIJKL":"EJIFHGLK","DFGHIJKL":"HGIDJFLK","DEGHIJKL":"EJIDHGLK"
 // Matchs du R32 avec équipes fixées (hardcodées comme dans le bracket)
 const R32_MATCHES=[
   {id:73,t1:"Afrique du Sud",t2:"Canada"},
-  {id:74,t1:"Brésil",t2:"Japon"},
-  {id:75,t1:"Allemagne",t2:"Paraguay"},
-  {id:76,t1:"Pays-Bas",t2:"Maroc"},
+  {id:74,t1:"Allemagne",t2:"Paraguay"},
+  {id:75,t1:"Pays-Bas",t2:"Maroc"},
+  {id:76,t1:"Brésil",t2:"Japon"},
   {id:77,t1:"Côte d'ivoire",t2:"Norvège"},
   {id:78,t1:"France",t2:"Suède"},
   {id:79,t1:"Mexique",t2:"Équateur"},
   {id:80,t1:"Angleterre",t2:"RD Congo"},
-  {id:81,t1:"Belgique",t2:"Sénégal"},
-  {id:82,t1:"USA",t2:"Bosnie-herzégovine"},
+  {id:81,t1:"USA",t2:"Bosnie-herzégovine"},
+  {id:82,t1:"Belgique",t2:"Sénégal"},
   {id:83,t1:"Espagne",t2:"Autriche"},
   {id:84,t1:"Portugal",t2:"Croatie"},
   {id:85,t1:"Suisse",t2:"Algérie"},
-  {id:86,t1:"Australie",t2:"Égypte"},
-  {id:87,t1:"Argentine",t2:"Cap-Vert"},
-  {id:88,t1:"Colombie",t2:"Ghana"},
+  {id:86,t1:"Argentine",t2:"Cap-Vert"},
+  {id:87,t1:"Colombie",t2:"Ghana"},
+  {id:88,t1:"Australie",t2:"Égypte"},
 ];
 
 // Structure du bracket pour les tours suivants : chaque entrée donne
 // comment déterminer les équipes d'un match KO à partir des tours précédents.
 // type='w' → vainqueur du match d'ID donné ; type='l' → perdant du match d'ID donné
 const BRACKET_R16 = [
-  {id:89, src:[{id:75,type:'w'},{id:78,type:'w'}]},
-  {id:90, src:[{id:73,type:'w'},{id:76,type:'w'}]},
-  {id:91, src:[{id:74,type:'w'},{id:77,type:'w'}]},
+  {id:89, src:[{id:74,type:'w'},{id:77,type:'w'}]},
+  {id:90, src:[{id:73,type:'w'},{id:75,type:'w'}]},
+  {id:91, src:[{id:76,type:'w'},{id:78,type:'w'}]},
   {id:92, src:[{id:79,type:'w'},{id:80,type:'w'}]},
-  {id:93, src:[{id:84,type:'w'},{id:83,type:'w'}]},
-  {id:94, src:[{id:82,type:'w'},{id:81,type:'w'}]},
-  {id:95, src:[{id:87,type:'w'},{id:86,type:'w'}]},
-  {id:96, src:[{id:85,type:'w'},{id:88,type:'w'}]},
+  {id:93, src:[{id:83,type:'w'},{id:84,type:'w'}]},
+  {id:94, src:[{id:81,type:'w'},{id:82,type:'w'}]},
+  {id:95, src:[{id:86,type:'w'},{id:88,type:'w'}]},
+  {id:96, src:[{id:85,type:'w'},{id:87,type:'w'}]},
 ];
 const BRACKET_QF = [
   {id:97,  src:[{id:89,type:'w'},{id:90,type:'w'}]},
@@ -446,16 +446,12 @@ async function main() {
   }
 
   // Forcer les résultats des matchs KO connus (penalties, etc.)
-  // M75 Allemagne-Paraguay → Paraguay (t2) gagne TAB
+  // M74 Allemagne-Paraguay → Paraguay (t2) gagne TAB
+  currentRS[74] = [1, 1, null, null, 't2'];
+  // M75 Pays-Bas-Maroc → Maroc (t2) gagne TAB
   currentRS[75] = [1, 1, null, null, 't2'];
-  // M76 Pays-Bas-Maroc → Maroc (t2) gagne TAB
-  currentRS[76] = [1, 1, null, null, 't2'];
-  // M86 Australie-Égypte → Égypte (t2) gagne TAB
-  currentRS[86] = [1, 1, null, null, 't2'];
-  // M81 Belgique-Sénégal → Belgique (t1) qualifiée
-  if (!currentRS[81] || (currentRS[81][0] === null && currentRS[81][1] === null)) {
-    currentRS[81] = [null, null, null, null, 't1'];
-  }
+  // M88 Australie-Égypte → Égypte (t2) gagne TAB
+  currentRS[88] = [1, 1, null, null, 't2'];
 
   // Construire les matchs KO à partir des résultats de groupes connus
   const koResult = buildKOMatches(currentRS);
