@@ -1526,6 +1526,7 @@ async function startFirebaseSync(){
       const converted={};
       Object.entries(fbData).forEach(([k,v])=>{
         if(+k===74||+k===75||+k===88) return; // exclus de la sync Firebase (TAB)
+        if(_localEdits.has(+k))return; // garder la version locale
         converted[+k]=v;
       });
       converted[74]=[1,1,null,null,'t2']; // Paraguay TAB
@@ -1575,6 +1576,7 @@ async function startFirebaseSync(){
       const converted={};
       Object.entries(d).forEach(([k,v])=>{
         if(+k===74||+k===75||+k===88) return; // exclus de la sync Firebase (TAB)
+        if(_localEdits.has(+k))return; // garder la version locale
         converted[+k]=v;
       });
       converted[74]=[1,1,null,null,'t2']; // Paraguay TAB
@@ -1645,6 +1647,7 @@ async function startFirebaseSync(){
 }
 
 let RS=loadRS();
+let _localEdits=new Set(); // matchs modifiés localement → pas écrasés par Firebase
 // Scores R32 forcés — exclus de toute sync Firebase pour garantir l'exactitude
 RS[73]=[0,1];                // Afrique du Sud 0-1 Canada → Canada
 RS[74]=[1,1,null,null,'t2']; // Allemagne 1-1 Paraguay → Paraguay TAB
@@ -1845,7 +1848,7 @@ function saveM(id){
   const b=document.getElementById('sb'+id)?.value;
   if(a===''||b===''||a===undefined){delete RS[id];}
   else{RS[id]=[+a,+b];}
-  saveRS();renderAll();toast(`Match #${id} sauvegardé ✓`);
+  _localEdits.add(id);saveRS();renderAll();toast(`Match #${id} sauvegardé ✓`);
 }
 
 function saveAll(){
@@ -1854,7 +1857,7 @@ function saveAll(){
     const id=m[0];
     const a=document.getElementById('sa'+id)?.value;
     const b=document.getElementById('sb'+id)?.value;
-    if(a!==''&&b!==''&&a!==undefined){RS[id]=[+a,+b];n++;}
+    if(a!==''&&b!==''&&a!==undefined){RS[id]=[+a,+b];_localEdits.add(id);n++;}
   });
   saveRS();renderAll();toast(`${n} scores sauvegardés ✓`);
 }
