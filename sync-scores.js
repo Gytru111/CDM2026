@@ -526,7 +526,7 @@ async function main() {
   newScores[83] = [2, 1]; // Portugal 2-1 Croatie → Portugal
   newScores[84] = [3, 0]; // Espagne 3-0 Autriche → Espagne
   newScores[85] = [2, 0]; // Suisse 2-0 Algérie → Suisse
-  newScores[86] = [3, 2]; // Argentine 3-2 Cap-Vert AET → Argentine
+  newScores[86] = [1, 1, null, null, 't1']; // Argentine 1-1 Cap-Vert AET -> Argentine (score temps reglementaire)
   newScores[87] = [1, 0]; // Colombie 1-0 Ghana → Colombie
 
   const updatedKoResult = buildKOMatches(newScores);
@@ -591,3 +591,4 @@ main().catch(e => {
   console.error('💥 Erreur fatale:', e);
   process.exit(1);
 });
+
