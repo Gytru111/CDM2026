@@ -21,7 +21,7 @@
 /* ══════════ RESET & TOKENS ══════════ */
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none}
 :root{
-  --bg:#0a0c0e;
+  --bg:#000000;
   --c1:#121417;--c2:#181b1f;--c3:#202428;--c4:#2a2f34;--c5:#363c42;
   --g1:rgba(255,255,255,.05);--g2:rgba(255,255,255,.09);--g3:rgba(255,255,255,.15);
   --t1:#f5f6f3;--t2:#a3aaa9;--t3:#6a7170;--t4:#3c4140;
@@ -109,13 +109,7 @@ a,[onclick]{touch-action:manipulation}
 .prog-stat-v,.mini-stat-v,.pod-pts,.lb-pts,.cmp-card-pts,.md-score-val,.pc-pts,.ts-card-v,.fs-kpi-v,.gst .pts{
   font-family:'Bebas Neue',Inter,sans-serif;letter-spacing:.04em}
 
-/* ══════════ BG TEXTURE ══════════ */
-body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
-  background:
-    radial-gradient(ellipse 120% 60% at 15% -10%,rgba(0,180,216,.10) 0%,transparent 55%),
-    radial-gradient(ellipse 80% 50% at 85% 110%,rgba(255,183,3,.09) 0%,transparent 50%),
-    radial-gradient(ellipse 60% 60% at 50% 50%,rgba(45,198,83,.04) 0%,transparent 60%);
-  will-change:transform;transform:translateZ(0);-webkit-transform:translateZ(0)}
+
 
 /* ══════════ KEYFRAMES ══════════ */
 @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
