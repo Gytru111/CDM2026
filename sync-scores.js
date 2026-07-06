@@ -49,8 +49,8 @@ const R32_MATCHES=[
   {id:74,t1:"Allemagne",t2:"Paraguay"},
   {id:75,t1:"Pays-Bas",t2:"Maroc"},
   {id:76,t1:"Brésil",t2:"Japon"},
-  {id:77,t1:"Côte d'ivoire",t2:"Norvège"},
-  {id:78,t1:"France",t2:"Suède"},
+  {id:77,t1:"France",t2:"Suède"},
+  {id:78,t1:"Côte d'ivoire",t2:"Norvège"},
   {id:79,t1:"Mexique",t2:"Équateur"},
   {id:80,t1:"Angleterre",t2:"RD Congo"},
   {id:81,t1:"USA",t2:"Bosnie-herzégovine"},
@@ -511,14 +511,23 @@ async function main() {
 
   // ─── CORRECTIONS FORCÉES DES SCORES R32 (écrase toute donnée Firebase/ESPN erronée) ──
   // Matchs terminés aux tirs au but ([1,1,...,'t2'] = t2 qualifié TAB)
-  newScores[74] = [1, 1, null, null, 't2']; // Allemagne-Paraguay → Paraguay TAB
-  newScores[75] = [1, 1, null, null, 't2']; // Pays-Bas-Maroc → Maroc TAB
-  newScores[88] = [1, 1, null, null, 't2']; // Australie-Égypte → Égypte TAB
-  // Matchs terminés dans le temps réglementaire
-  newScores[76] = [2, 1]; // Brésil-Japon → Brésil
-  newScores[81] = [2, 0]; // USA-Bosnie → USA
-  newScores[82] = [3, 2]; // Belgique-Sénégal → Belgique
-  newScores[86] = [1, 1, 2, 1]; // Argentine-Cap-Vert → Argentine (prolongation)
+  newScores[74] = [1, 1, null, null, 't2']; // Allemagne 1-1 Paraguay → Paraguay TAB
+  newScores[75] = [1, 1, null, null, 't2']; // Pays-Bas 1-1 Maroc → Maroc TAB
+  newScores[88] = [1, 1, null, null, 't2']; // Australie 1-1 Égypte → Égypte TAB
+  // Matchs dans le temps réglementaire
+  newScores[73] = [0, 1]; // Afrique du Sud 0-1 Canada → Canada
+  newScores[76] = [2, 1]; // Brésil 2-1 Japon → Brésil
+  newScores[77] = [3, 0]; // France 3-0 Suède → France
+  newScores[78] = [1, 2]; // Côte d'Ivoire 1-2 Norvège → Norvège
+  newScores[79] = [2, 0]; // Mexique 2-0 Équateur → Mexique
+  newScores[80] = [2, 1]; // Angleterre 2-1 RD Congo → Angleterre
+  newScores[81] = [2, 0]; // USA 2-0 Bosnie → USA
+  newScores[82] = [3, 2]; // Belgique 3-2 Sénégal → Belgique
+  newScores[83] = [2, 1]; // Portugal 2-1 Croatie → Portugal
+  newScores[84] = [3, 0]; // Espagne 3-0 Autriche → Espagne
+  newScores[85] = [2, 0]; // Suisse 2-0 Algérie → Suisse
+  newScores[86] = [3, 2]; // Argentine 3-2 Cap-Vert AET → Argentine
+  newScores[87] = [1, 0]; // Colombie 1-0 Ghana → Colombie
 
   const updatedKoResult = buildKOMatches(newScores);
   const newKoTeams = {};
