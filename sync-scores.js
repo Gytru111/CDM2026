@@ -523,8 +523,8 @@ async function main() {
   newScores[80] = [2, 1]; // Angleterre 2-1 RD Congo → Angleterre
   newScores[81] = [2, 0]; // USA 2-0 Bosnie → USA
   newScores[82] = [2, 2, null, null, 't1']; // Belgique 2-2 Sénégal (AET 3-2) → Belgique
-  newScores[83] = [2, 1]; // Portugal 2-1 Croatie → Portugal
-  newScores[84] = [3, 0]; // Espagne 3-0 Autriche → Espagne
+  newScores[83] = [3, 0]; // Espagne 3-0 Autriche → Espagne
+  newScores[84] = [2, 1]; // Portugal 2-1 Croatie → Portugal
   newScores[85] = [2, 0]; // Suisse 2-0 Algérie → Suisse
   newScores[86] = [1, 1, null, null, 't1']; // Argentine 1-1 Cap-Vert (score temps reglementaire) → Argentine AET
   newScores[87] = [1, 0]; // Colombie 1-0 Ghana → Colombie
