@@ -1434,16 +1434,14 @@ async function startFirebaseSync(){
     const snapRS=await _fbRef.get();
     if(snapRS.exists()&&snapRS.val()){
       const fbData=snapRS.val();
-      const m81Local=RS[81]; // valeur locale avant écrasement
       const converted={};
       Object.entries(fbData).forEach(([k,v])=>{
-        if(+k===81||+k===75||+k===76) return; // exclus de la sync Firebase
+        if(+k===74||+k===75||+k===88) return; // exclus de la sync Firebase (TAB)
         converted[+k]=v;
       });
-      if(m81Local!==undefined) converted[81]=m81Local; // restaurer M81 local
-      if(converted[81]) converted[81][4]='t1'; else converted[81]=[null,null,null,null,'t1']; // Belgique forcée
-      converted[75]=[1,1,null,null,'t2']; // Paraguay qualifié — toujours forcé
-      converted[76]=[1,1,null,null,'t2']; // Maroc qualifié — toujours forcé
+      converted[74]=[1,1,null,null,'t2']; // Paraguay qualifié TAB
+      converted[75]=[1,1,null,null,'t2']; // Maroc qualifié TAB
+      converted[88]=[1,1,null,null,'t2']; // Égypte qualifiée TAB
       RS=converted;
       try{localStorage.setItem('cdm26_rs',JSON.stringify(RS));}catch(e){}
     }
@@ -1484,16 +1482,14 @@ async function startFirebaseSync(){
     _fbRef.on('value',snap=>{
       if(!snap.exists())return;
       const d=snap.val();if(!d)return;
-      const m81Local=RS[81]; // sauvegarder la valeur locale avant écrasement
       const converted={};
       Object.entries(d).forEach(([k,v])=>{
-        if(+k===81||+k===75||+k===76) return; // exclus de la sync Firebase
+        if(+k===74||+k===75||+k===88) return; // exclus de la sync Firebase (TAB)
         converted[+k]=v;
       });
-      if(m81Local!==undefined) converted[81]=m81Local; // restaurer M81 local
-      if(converted[81]) converted[81][4]='t1'; else converted[81]=[null,null,null,null,'t1']; // Belgique forcée
-      converted[75]=[1,1,null,null,'t2']; // Paraguay qualifié — toujours forcé
-      converted[76]=[1,1,null,null,'t2']; // Maroc qualifié — toujours forcé
+      converted[74]=[1,1,null,null,'t2']; // Paraguay qualifié TAB
+      converted[75]=[1,1,null,null,'t2']; // Maroc qualifié TAB
+      converted[88]=[1,1,null,null,'t2']; // Égypte qualifiée TAB
       RS=converted;
       try{localStorage.setItem('cdm26_rs',JSON.stringify(RS));}catch(e){}
       renderAll();
@@ -1564,9 +1560,8 @@ let RS=loadRS();
 RS[74]=[1,1,null,null,'t2']; // Paraguay qualifié
 RS[75]=[1,1,null,null,'t2']; // Maroc qualifié
 RS[88]=[1,1,null,null,'t2']; // Égypte qualifiée (t2 = Égypte)
-// Forcer Belgique qualifiée sans écraser le score admin
 if(!RS[81]) RS[81]=[null,null];
-RS[81][4]='t1'; // USA (t1) qualifié en 8e
+RS[81][4]='t1'; // USA qualifié (score 2-0 Bosnie, t1 secure)
 let ME=loadME();
 let AE=loadAE();
 
