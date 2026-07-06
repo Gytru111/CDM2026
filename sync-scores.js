@@ -518,6 +518,7 @@ async function main() {
   newScores[76] = [2, 1]; // Brésil-Japon → Brésil
   newScores[81] = [2, 0]; // USA-Bosnie → USA
   newScores[82] = [3, 2]; // Belgique-Sénégal → Belgique
+  newScores[86] = [1, 1, 2, 1]; // Argentine-Cap-Vert → Argentine (prolongation)
 
   const updatedKoResult = buildKOMatches(newScores);
   const newKoTeams = {};

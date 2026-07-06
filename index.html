@@ -1441,6 +1441,7 @@ async function startFirebaseSync(){
       });
       converted[74]=[1,1,null,null,'t2']; // Paraguay qualifié TAB
       converted[75]=[1,1,null,null,'t2']; // Maroc qualifié TAB
+      converted[86]=[1,1,2,1];            // Argentine prolongation
       converted[88]=[1,1,null,null,'t2']; // Égypte qualifiée TAB
       RS=converted;
       try{localStorage.setItem('cdm26_rs',JSON.stringify(RS));}catch(e){}
@@ -1489,6 +1490,7 @@ async function startFirebaseSync(){
       });
       converted[74]=[1,1,null,null,'t2']; // Paraguay qualifié TAB
       converted[75]=[1,1,null,null,'t2']; // Maroc qualifié TAB
+      converted[86]=[1,1,2,1];            // Argentine prolongation
       converted[88]=[1,1,null,null,'t2']; // Égypte qualifiée TAB
       RS=converted;
       try{localStorage.setItem('cdm26_rs',JSON.stringify(RS));}catch(e){}
@@ -1557,11 +1559,14 @@ let RS=loadRS();
 // M74 Allemagne vs Paraguay : 1-1 TAB → Paraguay qualifié (t2)
 // M75 Pays-Bas vs Maroc     : 1-1 TAB → Maroc qualifié (t2)
 // M88 Australie vs Égypte   : 1-1 TAB → Égypte qualifiée (t2)
-RS[74]=[1,1,null,null,'t2']; // Paraguay qualifié
-RS[75]=[1,1,null,null,'t2']; // Maroc qualifié
-RS[88]=[1,1,null,null,'t2']; // Égypte qualifiée (t2 = Égypte)
+RS[74]=[1,1,null,null,'t2']; // Allemagne-Paraguay → Paraguay TAB
+RS[75]=[1,1,null,null,'t2']; // Pays-Bas-Maroc → Maroc TAB
+RS[76]=[2,1];                // Brésil-Japon → Brésil
 if(!RS[81]) RS[81]=[null,null];
-RS[81][4]='t1'; // USA qualifié (score 2-0 Bosnie, t1 secure)
+RS[81][4]='t1';              // USA-Bosnie → USA (2-0, t1 secure)
+RS[82]=[3,2];                // Belgique-Sénégal → Belgique
+RS[86]=[1,1,2,1];            // Argentine-Cap-Vert → Argentine (prolongation)
+RS[88]=[1,1,null,null,'t2']; // Australie-Égypte → Égypte TAB
 let ME=loadME();
 let AE=loadAE();
 
