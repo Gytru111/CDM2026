@@ -4107,8 +4107,8 @@ function _refreshBracketCacheSilent(){
     // Quarts — M97=W89vsW90, M98=W93vsW94, M99=W91vsW92, M100=W95vsW96
     [[97,90,89],[98,93,94],[99,91,92],[100,95,96]]
       .forEach(([id,a,b])=>addKo(id,a,b,`Vainqueur M${a}`,`Vainqueur M${b}`));
-    // Demis
-    [[101,97,98],[102,99,100]]
+    // Demis — M101 = M99 vs M98, M102 = M97 vs M100
+    [[101,99,98],[102,97,100]]
       .forEach(([id,a,b])=>addKo(id,a,b,`Vainqueur M${a}`,`Vainqueur M${b}`));
     // Finale
     addKo(104,101,102,'Vainqueur M101','Vainqueur M102');
@@ -4204,48 +4204,40 @@ function renderBracket(){
   r32Matches.forEach(m=>r32Map[m.id]=m);
 
   // ═══════════════════════════════════════════════════
-  // APPARIEMENT OFFICIEL FIFA — arbre visuel complet
-  // L'ordre d'affichage suit l'arbre FIFA de haut en bas,
-  // de sorte que chaque paire de R32 est alignée avec son
-  // match de 16es, lui-même aligné avec son quart, etc.
+  // APPARIEMENT OFFICIEL — arbre visuel complet
+  // L'ordre d'affichage suit l'arbre de haut en bas.
   //
-  // Arbre gauche (SF M101 = QF M97 vs QF M98):
-  //   M90 (W73 vs W75) ─┐
-  //   M89 (W74 vs W77) ─┴─ M97 ─┐
-  //   M91 (W76 vs W78) ─┐        ├─ M101
-  //   M92 (W79 vs W80) ─┴─ M99 ─┘  (erreur : M97 vs M98, voir ci-dessous)
+  // Arbre haut (SF M101 = QF M99 vs QF M98):
+  //   M76 → M91 ─┐        ┌─ M99 ─┐
+  //   M78 → M91 ─┘        │        │
+  //   M79 → M92 ─┐        ├─ M99 ─┘
+  //   M80 → M92 ─┘                 ├─ M101
+  //   M83 → M93 ─┐                 │
+  //   M84 → M93 ─┘        ┌─ M98 ─┘
+  //   M81 → M94 ─┐        │
+  //   M82 → M94 ─┘        ├─ M98
   //
-  // Arbre correct (source fifa.com) :
-  //   Colonne R32  (ordre affichage) → R16 → QF → SF
-  //   M73  ─┐
-  //   M75  ─┴─ M90 ─┐
-  //   M74  ─┐        ├─ M97 ─┐
-  //   M77  ─┴─ M89 ─┘        │
-  //   M76  ─┐                 ├─ M101 → Finale
-  //   M78  ─┴─ M91 ─┐        │
-  //   M79  ─┐        ├─ M99 ─┘
-  //   M80  ─┴─ M92 ─┘
-  //   ──────────────────────────────
-  //   M83  ─┐
-  //   M84  ─┴─ M93 ─┐
-  //   M81  ─┐        ├─ M98 ─┐
-  //   M82  ─┴─ M94 ─┘        │
-  //   M86  ─┐                 ├─ M102 → Finale
-  //   M88  ─┴─ M95 ─┐        │
-  //   M85  ─┐        ├─ M100─┘
-  //   M87  ─┴─ M96 ─┘
+  // Arbre bas (SF M102 = QF M97 vs QF M100):
+  //   M73 → M90 ─┐        ┌─ M97 ─┐
+  //   M75 → M90 ─┘        │        │
+  //   M74 → M89 ─┐        ├─ M97 ─┘
+  //   M77 → M89 ─┘                 ├─ M102
+  //   M86 → M95 ─┐                 │
+  //   M88 → M95 ─┘        ┌─ M100 ─┘
+  //   M85 → M96 ─┐        │
+  //   M87 → M96 ─┘        ├─ M100
   // ═══════════════════════════════════════════════════
 
   // Ordre d'affichage visuel des R32 (haut → bas) aligné sur l'arbre FIFA complet :
-  // M73+M75 → M90 ─┐                   ┌─ M101
-  // M74+M77 → M89 ─┴─ M97 ─┐           │
+  // M76+M78 → M91 ─┐                   ┌─ M101
+  // M79+M80 → M92 ─┴─ M99 ─┐           │
   // M83+M84 → M93 ─┐        ├─ M101 ──┘
   // M81+M82 → M94 ─┴─ M98 ─┘
-  // M76+M78 → M91 ─┐                   ┌─ M102
-  // M79+M80 → M92 ─┴─ M99 ─┐           │
+  // M73+M75 → M90 ─┐                   ┌─ M102
+  // M74+M77 → M89 ─┴─ M97 ─┐           │
   // M86+M88 → M95 ─┐        ├─ M102 ──┘
   // M85+M87 → M96 ─┴─ M100─┘
-  const R32_DISPLAY_ORDER=[73,75,74,77,83,84,81,82,76,78,79,80,86,88,85,87];
+  const R32_DISPLAY_ORDER=[76,78,79,80,83,84,81,82,73,75,74,77,86,88,85,87];
   const R32=R32_DISPLAY_ORDER.map(id=>r32Map[id]);
 
   // 16es dans le même ordre visuel
@@ -4270,23 +4262,23 @@ function renderBracket(){
   }
 
   const R16=[
-    // Arbre gauche haut : Allemagne/Paraguay + Côte d'Ivoire/Norvège → 8e M90 ; Brésil/Japon + Suède/France → 8e M89
-    {id:90, t1:w32(73), t1label:'Vainqueur M73', t2:w32(75), t2label:'Vainqueur M75'},
-    {id:89, t1:w32(74), t1label:'Vainqueur M74', t2:w32(77), t2label:'Vainqueur M77'},
     // Arbre gauche bas : Pays-Bas/Maroc + France/Suède → 8e M91 ; Mexique/Équateur + Angleterre/RD Congo → 8e M92
     {id:91, t1:w32(76), t1label:'Vainqueur M76', t2:w32(78), t2label:'Vainqueur M78'},
     {id:92, t1:w32(79), t1label:'Vainqueur M79', t2:w32(80), t2label:'Vainqueur M80'},
     // Arbre droite haut : Espagne/Autriche + Portugal/Croatie → 8e M93 ; Belgique/Sénégal + USA/Bosnie → 8e M94
     {id:93, t1:w32(83), t1label:'Vainqueur M83', t2:w32(84), t2label:'Vainqueur M84'},
     {id:94, t1:w32(81), t1label:'Vainqueur M81', t2:w32(82), t2label:'Vainqueur M82'},
+    // Arbre gauche haut : Allemagne/Paraguay + Côte d'Ivoire/Norvège → 8e M90 ; Brésil/Japon + Suède/France → 8e M89
+    {id:90, t1:w32(73), t1label:'Vainqueur M73', t2:w32(75), t2label:'Vainqueur M75'},
+    {id:89, t1:w32(74), t1label:'Vainqueur M74', t2:w32(77), t2label:'Vainqueur M77'},
     // Arbre droite bas : Australie/Égypte + Argentine/Cap-Vert → 8e M95 ; Suisse/Algérie + Colombie/Ghana → 8e M96
     {id:95, t1:w32(86), t1label:'Vainqueur M86', t2:w32(88), t2label:'Vainqueur M88'},
     {id:96, t1:w32(85), t1label:'Vainqueur M85', t2:w32(87), t2label:'Vainqueur M87'},
   ];
 
-  // Quarts — ordre d'affichage aligné sur l'arbre FIFA
-  // M101 = W97 vs W98  →  M97 et M98 doivent être visuellement adjacents (haut)
-  // M102 = W99 vs W100 →  M99 et M100 doivent être visuellement adjacents (bas)
+  // Quarts — ordre d'affichage aligné sur les demi-finales
+  // M101 = M99 vs M98  →  M99 et M98 sont adjacents en haut
+  // M102 = M97 vs M100 →  M97 et M100 sont adjacents en bas
   function r16ById(id){ return R16.find(m=>m.id===id); }
   function w16(matchId){
     const m=R16.find(x=>x.id===matchId);
@@ -4300,15 +4292,7 @@ function renderBracket(){
     {id:99,  t1:w16(91), t1label:'Vainqueur M91', t2:w16(92), t2label:'Vainqueur M92'},
     {id:100, t1:w16(95), t1label:'Vainqueur M95', t2:w16(96), t2label:'Vainqueur M96'},
   ];
-  // Ordre visuel : M97+M98 → M101 (haut) ; M99+M100 → M102 (bas)
-  const QF_DISPLAY=[
-    QF.find(m=>m.id===97),
-    QF.find(m=>m.id===98),
-    QF.find(m=>m.id===99),
-    QF.find(m=>m.id===100),
-  ];
-
-  // Demi-finales — M101=W97vsW98, M102=W99vsW100 (source fifa.com)
+  // Demi-finales — M101=W99vsW98, M102=W97vsW100
   function qfById(id){ return QF.find(m=>m.id===id); }
   function wQF(matchId){
     const m=QF.find(x=>x.id===matchId);
@@ -4317,8 +4301,16 @@ function renderBracket(){
   }
 
   const SF=[
-    {id:101, t1:wQF(97),  t1label:'Vainqueur M97',  t2:wQF(98),  t2label:'Vainqueur M98'},
-    {id:102, t1:wQF(99),  t1label:'Vainqueur M99',  t2:wQF(100), t2label:'Vainqueur M100'},
+    {id:101, t1:wQF(99),  t1label:'Vainqueur M99',  t2:wQF(98),  t2label:'Vainqueur M98'},
+    {id:102, t1:wQF(97),  t1label:'Vainqueur M97',  t2:wQF(100), t2label:'Vainqueur M100'},
+  ];
+
+  // Ordre visuel des quarts aligné sur les demi-finales
+  const QF_DISPLAY=[
+    QF.find(m=>m.id===99),
+    QF.find(m=>m.id===98),
+    QF.find(m=>m.id===97),
+    QF.find(m=>m.id===100),
   ];
 
   // Finale — M104 = W101 vs W102
